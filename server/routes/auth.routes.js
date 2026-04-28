@@ -60,7 +60,7 @@ router.get("/google/callback", (req, res, next) => {
         if (!user) {
             // Redirect to frontend with error message
             const message = info ? info.message : "Authentication failed";
-            return res.redirect(`${process.env.CLIENT_URL || "https://FALLBACK-TRIGGERED.com"}/?error=${encodeURIComponent(message)}`);
+            return res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000" || "https://sprucelikeskills-exam.vercel.app"}/?error=${encodeURIComponent(message)}`);
         }
 
         // Generate JWT
@@ -78,9 +78,7 @@ router.get("/google/callback", (req, res, next) => {
         });
 
         // Redirect to dashboard
-        const redirectUrl = `${process.env.CLIENT_URL || "https://FALLBACK-TRIGGERED.com"}/dashboard`;
-        console.log("Redirecting to:", redirectUrl);
-        res.redirect(redirectUrl);
+        res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000" || "https://sprucelikeskills-exam.vercel.app"}/dashboard`);
     })(req, res, next);
 });
 
