@@ -262,7 +262,7 @@ export default function CreateExam() {
         passingScore,
         totalMarks,
         questions,
-        startTime
+        startTime: new Date(startTime).toISOString()
       }, { withCredentials: true });
 
       if (res.data.success) {

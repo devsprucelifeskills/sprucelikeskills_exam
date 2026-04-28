@@ -61,8 +61,10 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
           if (e.startTime) {
             const date = new Date(e.startTime);
             if (!isNaN(date.getTime())) {
-              const formattedDate = date.toISOString().slice(0, 16);
-              setStartTime(formattedDate);
+              // Convert UTC to local YYYY-MM-DDTHH:mm
+              const offset = date.getTimezoneOffset() * 60000;
+              const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+              setStartTime(localISOTime);
             }
           }
           setPassingScore(e.passingScore);
@@ -213,7 +215,7 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
         passingScore,
         totalMarks,
         questions,
-        startTime
+        startTime: new Date(startTime).toISOString()
       }, { withCredentials: true });
 
       if (res.data.success) {
