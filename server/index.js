@@ -10,9 +10,6 @@ import User from "./model/user.model.js";
 
 dotenv.config();
 
-console.log("CLIENT_URL:", process.env.CLIENT_URL);
-console.log("NODE_ENV:", process.env.NODE_ENV);
-
 const app = express();
 const PORT = process.env.PORT || 9002;
 
@@ -36,7 +33,7 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const email = profile.emails[0].value;
-        
+
         // Find user by email
         let user = await User.findOne({ email });
 

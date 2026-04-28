@@ -10,7 +10,7 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ success: false, message: "Email and password are required" });
         }
@@ -60,7 +60,7 @@ router.get("/google/callback", (req, res, next) => {
         if (!user) {
             // Redirect to frontend with error message
             const message = info ? info.message : "Authentication failed";
-            return res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/?error=${encodeURIComponent(message)}`);
+            return res.redirect(`${process.env.CLIENT_URL || "https://FALLBACK-TRIGGERED.com"}/?error=${encodeURIComponent(message)}`);
         }
 
         // Generate JWT
@@ -78,7 +78,7 @@ router.get("/google/callback", (req, res, next) => {
         });
 
         // Redirect to dashboard
-        const redirectUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`;
+        const redirectUrl = `${process.env.CLIENT_URL || "https://FALLBACK-TRIGGERED.com"}/dashboard`;
         console.log("Redirecting to:", redirectUrl);
         res.redirect(redirectUrl);
     })(req, res, next);
