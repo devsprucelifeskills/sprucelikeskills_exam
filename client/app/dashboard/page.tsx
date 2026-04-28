@@ -104,16 +104,16 @@ export default function Dashboard() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar role={user.role} />
         
-        <main className="flex-1 overflow-y-auto p-8 max-w-7xl mx-auto w-full pb-20">
-          <header className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold mb-4 border border-blue-100">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full pb-20">
+          <header className="mb-8 md:mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] md:text-xs font-bold mb-4 border border-blue-100">
               <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
               Live Dashboard
             </div>
-            <h1 className="text-4xl font-black text-zinc-900 tracking-tight mb-2">
+            <h1 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight mb-2">
               {isAdminOrTrainer ? "Management Portal" : "Student Dashboard"}
             </h1>
-            <p className="text-zinc-500 text-lg max-w-2xl">
+            <p className="text-zinc-500 text-base md:text-lg max-w-2xl">
               {dashboardData?.message || "Welcome back! Here's what's happening today."}
             </p>
           </header>
@@ -202,44 +202,44 @@ function StatsCard({ title, value, icon, color, delay }: any) {
 
   return (
     <div 
-      className={`bg-white rounded-[32px] p-8 shadow-xl shadow-zinc-200/40 border border-zinc-100 hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}
+      className={`bg-white rounded-[24px] md:rounded-[32px] p-6 md:p-8 shadow-xl shadow-zinc-200/40 border border-zinc-100 hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
     >
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border ${colors[color]}`}>
+      <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 border ${colors[color]}`}>
         {icon}
       </div>
-      <p className="text-zinc-500 text-sm font-black uppercase tracking-widest mb-1">{title}</p>
-      <p className="text-5xl font-black text-zinc-900 tracking-tighter">{value}</p>
+      <p className="text-zinc-500 text-[10px] md:text-sm font-black uppercase tracking-widest mb-1">{title}</p>
+      <p className="text-3xl md:text-5xl font-black text-zinc-900 tracking-tighter">{value}</p>
     </div>
   );
 }
 
 function ActionCard({ title, description, buttonText, icon, primary, disabled, onClick }: any) {
   return (
-    <div className={`group bg-white rounded-[32px] p-8 shadow-xl shadow-zinc-200/40 border ${disabled ? 'border-dashed border-zinc-200 opacity-60' : 'border-zinc-100 hover:shadow-2xl hover:shadow-zinc-300/50 transition-all duration-500'} flex flex-col h-full relative overflow-hidden`}>
+    <div className={`group bg-white rounded-[24px] md:rounded-[32px] p-6 md:p-8 shadow-xl shadow-zinc-200/40 border ${disabled ? 'border-dashed border-zinc-200 opacity-60' : 'border-zinc-100 hover:shadow-2xl hover:shadow-zinc-300/50 transition-all duration-500'} flex flex-col h-full relative overflow-hidden`}>
       {!disabled && (
         <div className={`absolute -right-8 -top-8 w-24 h-24 rounded-full transition-all duration-500 group-hover:scale-[3] opacity-[0.03] ${primary ? 'bg-blue-600' : 'bg-zinc-900'}`} />
       )}
       
       <div className="flex-grow relative z-10">
-        <div className="flex justify-between items-start mb-6">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${primary ? 'bg-blue-50 text-blue-600' : 'bg-zinc-50 text-zinc-600'} group-hover:scale-110 transition-transform duration-300`}>
+        <div className="flex justify-between items-start mb-4 md:mb-6">
+          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center ${primary ? 'bg-blue-50 text-blue-600' : 'bg-zinc-50 text-zinc-600'} group-hover:scale-110 transition-transform duration-300`}>
             {icon}
           </div>
           {disabled && (
-            <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-full border border-amber-100 uppercase tracking-wider">
+            <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[8px] md:text-[10px] font-black rounded-full border border-amber-100 uppercase tracking-wider">
               Soon
             </span>
           )}
         </div>
-        <h3 className="text-2xl font-black text-zinc-900 mb-3">{title}</h3>
-        <p className="text-zinc-500 text-sm leading-relaxed mb-8">{description}</p>
+        <h3 className="text-xl md:text-2xl font-black text-zinc-900 mb-2 md:mb-3">{title}</h3>
+        <p className="text-zinc-500 text-xs md:text-sm leading-relaxed mb-6 md:mb-8">{description}</p>
       </div>
       
       <button 
         onClick={onClick}
         disabled={disabled}
-        className={`relative z-10 w-full py-4 rounded-2xl font-black text-sm transition-all duration-300 ${
+        className={`relative z-10 w-full py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-xs md:text-sm transition-all duration-300 ${
           disabled 
             ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed' 
             : primary 
