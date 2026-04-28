@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { API_URL } from "@/lib/api";
+import { useSidebar } from "@/context/SidebarContext";
 
 interface NavbarProps {
   user: {
@@ -15,6 +16,7 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const router = useRouter();
+  const { toggleSidebar } = useSidebar();
 
   const handleLogout = async () => {
     try {
@@ -35,14 +37,25 @@ export default function Navbar({ user }: NavbarProps) {
   };
 
   return (
-    <nav className="bg-white border-b border-zinc-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50">
+    <nav className="bg-white border-b border-zinc-100 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
       <div className="flex items-center gap-4">
+        {/* Hamburger Menu - Only Mobile */}
+        <button
+          onClick={toggleSidebar}
+          className="p-2 -ml-2 text-zinc-500 hover:bg-zinc-50 rounded-lg md:hidden transition-colors"
+          aria-label="Toggle Menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
         <Image
           src="/spruceLogo.svg"
           alt="Spruce Logo"
           width={130}
           height={40}
-          className="h-9 w-auto"
+          className="h-8 w-auto"
           priority
         />
         <div className="h-6 w-px bg-zinc-100 hidden md:block mx-2" />

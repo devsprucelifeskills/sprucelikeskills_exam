@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useSidebar } from "@/context/SidebarContext";
+
 interface SidebarProps {
   role: string;
 }
@@ -16,6 +18,7 @@ interface SidebarLink {
 
 export default function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
+  const { isOpen, closeSidebar } = useSidebar();
   const isAdminOrTrainer = role === "admin" || role === "trainer";
 
   const icons = {
@@ -73,54 +76,81 @@ export default function Sidebar({ role }: SidebarProps) {
 
   const studentLinks: SidebarLink[] = [
     { label: "Available Exams", href: "/dashboard/exams", icon: icons.available },
-    // { label: "My Results", href: "/dashboard/my-results", icon: icons.award },
   ];
 
   const links: SidebarLink[] = isAdminOrTrainer ? adminLinks : studentLinks;
 
+  const handleLinkClick = () => {
+    if (window.innerWidth < 768) {
+      closeSidebar();
+    }
+  };
+
   return (
-    <aside className="w-64 bg-white border-r border-zinc-100 min-h-[calc(100vh-73px)] hidden md:flex flex-col flex-shrink-0">
-      <div className="p-6 flex-1">
-        <h2 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-6">Main Menu</h2>
-        <nav className="space-y-1.5">
-          {links.map((link) => {
-            const isActive = pathname === link.href;
+    <>
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] md:hidden transition-all duration-300"
+          onClick={closeSidebar}
+        />
+      )}
 
-            return (
-              <Link
-                key={link.label}
-                href={link.disabled ? "#" : link.href}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ${isActive
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-bold"
-                  : link.disabled
-                    ? "opacity-50 cursor-not-allowed text-zinc-400"
-                    : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
-                  }`}
-                onClick={(e) => link.disabled && e.preventDefault()}
-              >
-                <span className={`transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
-                  {link.icon}
-                </span>
-                <span className="text-sm">{link.label}</span>
-                {link.disabled && (
-                  <span className="ml-auto text-[10px] font-bold bg-zinc-100 text-zinc-400 px-2 py-0.5 rounded-full uppercase">
-                    Soon
+      <aside className={`
+        fixed md:sticky top-[73px] left-0 w-64 bg-white border-r border-zinc-100 h-[calc(100vh-73px)] z-[60] 
+        transition-transform duration-300 transform
+        ${isOpen ? "translate-x-0 shadow-2xl md:shadow-none" : "-translate-x-full md:translate-x-0"}
+        flex flex-col flex-shrink-0
+      `}>
+        <div className="p-6 flex-1">
+          <h2 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-6">Main Menu</h2>
+          <nav className="space-y-1.5">
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+
+              return (
+                <Link
+                  key={link.label}
+                  href={link.disabled ? "#" : link.href}
+                  className={`group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ${isActive
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-bold"
+                    : link.disabled
+                      ? "opacity-50 cursor-not-allowed text-zinc-400"
+                      : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                    }`}
+                  onClick={(e) => {
+                    if (link.disabled) e.preventDefault();
+                    else handleLinkClick();
+                  }}
+                >
+                  <span className={`transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
+                    {link.icon}
                   </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+                  <span className="text-sm">{link.label}</span>
+                  {link.disabled && (
+                    <span className="ml-auto text-[10px] font-bold bg-zinc-100 text-zinc-400 px-2 py-0.5 rounded-full uppercase">
+                      Soon
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-      <div className="p-6 border-t border-zinc-50">
-        <a href="#" className="group flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-all duration-200">
-          <span className="group-hover:rotate-45 transition-transform duration-300">
-            {icons.settings}
-          </span>
-          <span className="text-sm">Settings</span>
-        </a>
-      </div>
-    </aside>
+        <div className="p-6 border-t border-zinc-50">
+          <a 
+            href="#" 
+            className="group flex items-center gap-3 px-4 py-3 rounded-2xl text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-all duration-200"
+            onClick={handleLinkClick}
+          >
+            <span className="group-hover:rotate-45 transition-transform duration-300">
+              {icons.settings}
+            </span>
+            <span className="text-sm">Settings</span>
+          </a>
+        </div>
+      </aside>
+    </>
   );
 }
