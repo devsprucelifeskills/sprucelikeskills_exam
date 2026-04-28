@@ -60,7 +60,7 @@ router.get("/google/callback", (req, res, next) => {
         if (!user) {
             // Redirect to frontend with error message
             const message = info ? info.message : "Authentication failed";
-            return res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000" || "https://sprucelikeskills-exam.vercel.app"}/?error=${encodeURIComponent(message)}`);
+            return res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/?error=${encodeURIComponent(message)}`);
         }
 
         // Generate JWT
@@ -73,12 +73,14 @@ router.get("/google/callback", (req, res, next) => {
         // Send token in cookie (HttpOnly for security)
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: true, // Must be true for SameSite: None
+            sameSite: "none", // Required for cross-site cookies
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
         // Redirect to dashboard
-        res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000" || "https://sprucelikeskills-exam.vercel.app"}/dashboard`);
+        const redirectUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`;
+        res.redirect(redirectUrl);
     })(req, res, next);
 });
 

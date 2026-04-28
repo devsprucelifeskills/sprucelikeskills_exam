@@ -18,7 +18,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000" || "https://sprucelikeskills-exam.vercel.app/",
+    origin: function (origin, callback) {
+        const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:3000"];
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true
 }));
 
