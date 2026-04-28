@@ -408,7 +408,7 @@ function InstructionItem({ icon, title, desc }: { icon: string, title: string, d
                       )}
                     </div>
                     <div className="mb-10">
-                      <h2 className="text-2xl font-bold text-slate-800 leading-tight mb-4">{q.questionText}</h2>
+                      <h2 className="text-2xl font-bold text-slate-800 leading-tight mb-4">{q.text}</h2>
                       {q.image && <div className="mt-4 rounded-2xl overflow-hidden border border-slate-100"><Image src={q.image} alt="Question" width={600} height={300} className="w-full object-contain bg-slate-50" /></div>}
                     </div>
                     <div className="space-y-4">
