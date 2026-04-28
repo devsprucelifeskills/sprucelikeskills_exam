@@ -78,7 +78,9 @@ router.get("/google/callback", (req, res, next) => {
         });
 
         // Redirect to dashboard
-        res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`);
+        const redirectUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`;
+        console.log("Redirecting to:", redirectUrl);
+        res.redirect(redirectUrl);
     })(req, res, next);
 });
 
