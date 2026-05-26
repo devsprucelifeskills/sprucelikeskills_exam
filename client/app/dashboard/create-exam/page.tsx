@@ -434,7 +434,13 @@ export default function CreateExam() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700  mb-2">Passing Score</label>
+                    <label className="block text-sm font-medium text-zinc-700  mb-2">
+                      Passing Score {totalMarks > 0 && (
+                        <span className="text-xs font-normal text-zinc-500">
+                          ({passingScore}/{totalMarks} = {Math.round((passingScore / totalMarks) * 100)}%)
+                        </span>
+                      )}
+                    </label>
                     <input 
                       type="number" 
                       value={passingScore || 0}
