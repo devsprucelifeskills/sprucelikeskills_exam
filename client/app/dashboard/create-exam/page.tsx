@@ -121,7 +121,6 @@ export default function CreateExam() {
   useEffect(() => {
     const total = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
     setTotalMarks(total);
-    setPassingScore(Math.ceil(total * 0.4));
   }, [questions]);
 
   const toggleBatch = (batchId: string) => {
@@ -435,13 +434,13 @@ export default function CreateExam() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700  mb-2">Passing Score (40%)</label>
+                    <label className="block text-sm font-medium text-zinc-700  mb-2">Passing Score</label>
                     <input 
                       type="number" 
                       value={passingScore || 0}
-                      readOnly
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-100  text-zinc-500  focus:outline-none cursor-not-allowed font-bold"
-                      title="Automatically set to 40% of Total Marks"
+                      onChange={e => setPassingScore(Number(e.target.value))}
+                      min={0}
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-white  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                     />
                   </div>
                 </div>
