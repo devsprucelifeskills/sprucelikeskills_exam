@@ -13,6 +13,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -78,17 +79,30 @@ function LoginForm() {
             required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Password</label>
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-            placeholder="••••••••"
-            required
-          />
-        </div>
+          <div>
+      <label className="block text-sm font-medium text-zinc-700 mb-1">
+        Password
+      </label>
+
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none pr-16"
+          placeholder="••••••••"
+          required
+        />
+
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600"
+        >
+          {showPassword ? "Hide" : "Show"}
+        </button>
+      </div>
+    </div>
         
         <button
           type="submit"

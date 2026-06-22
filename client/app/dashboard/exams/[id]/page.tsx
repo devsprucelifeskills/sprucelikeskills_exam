@@ -131,9 +131,12 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     });
   };
 
+  // Tracks whether the browser is currently in fullscreen mode.
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
+    // Keep React state in sync with the browser fullscreen API.
+    // This lets the UI react immediately when the user enters or exits fullscreen.
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
@@ -142,16 +145,19 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   }, []);
 
   const enterFullscreen = () => {
+    // Request fullscreen on the root document element so the whole exam page is covered.
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
       elem.requestFullscreen().catch(err => {
+        // Browsers may reject fullscreen if the user gesture is missing or permissions block it.
         console.error(`Error attempting to enable full-screen mode: ${err.message}`);
       });
     }
   };
 
   const startExamWithFullscreen = () => {
-    enterFullscreen();
+    // Start the exam only after asking the browser to enter fullscreen.
+    // enterFullscreen();
     setPhase("exam");
   };
 
@@ -167,6 +173,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
       if (res.data.success) {
         localStorage.removeItem(`exam_progress_${id}`);
         localStorage.removeItem(`exam_review_${id}`);
+        // Exit fullscreen after a successful submission so the browser returns to normal mode.
         if (document.fullscreenElement) {
            document.exitFullscreen().catch(e => console.error(e));
         }
@@ -336,8 +343,9 @@ function InstructionItem({ icon, title, desc }: { icon: string, title: string, d
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* Fullscreen Enforcement Overlay */}
-      {phase === "exam" && !isFullscreen && (
+      {/* Fullscreen enforcement overlay: if the exam is active and fullscreen is lost,
+          block the UI until the user returns to fullscreen. */}
+      {/* {phase === "exam" && !isFullscreen && (
         <div className="fixed inset-0 z-[9999] bg-zinc-900/95 backdrop-blur-xl flex items-center justify-center p-6 text-center">
           <div className="max-w-md w-full bg-white rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300">
             <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-amber-200/50">
@@ -348,7 +356,7 @@ function InstructionItem({ icon, title, desc }: { icon: string, title: string, d
             <button onClick={enterFullscreen} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-500/30 hover:bg-blue-700 hover:scale-[1.02] transition-all active:scale-95">Return to Fullscreen</button>
           </div>
         </div>
-      )}
+      )} */}
 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-sm">
         <div className="flex items-center justify-between px-6 py-3">
