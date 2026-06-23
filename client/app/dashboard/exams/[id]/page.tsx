@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import axios from "axios";
 import { API_URL } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,20 @@ import Image from "next/image";
 interface Answer {
   questionIndex: number;
   selectedOptionIndex: number;
+}
+
+function InstructionItem({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+  return (
+    <div className="flex gap-4">
+      <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm border border-slate-100">
+        {icon}
+      </div>
+      <div>
+        <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
+        <p className="text-slate-500 text-xs leading-relaxed font-medium">{desc}</p>
+      </div>
+    </div>
+  );
 }
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,17 +40,44 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [result, setResult] = useState<any>(null);
   const [reviewIndices, setReviewIndices] = useState<number[]>([]);
 
+  // --- TIME SYNC -------------------------------------------------------------
+  // clockOffsetRef stores (serverTime - clientTime) in ms. We compute this once
+  // when the exam loads (and refresh it periodically below), then use
+  // getServerNow() everywhere we previously used `new Date()` for "now".
+  // This means a student changing their device clock no longer affects the
+  // countdown, the phase transitions, or the auto-submit trigger.
+  const clockOffsetRef = useRef(0);
+
+  const getServerNow = () => Date.now() + clockOffsetRef.current;
+
+  const applyServerTimeFromResponse = (res: any) => {
+    // Prefer an explicit serverTime field in the JSON body if the backend sends one.
+    // Falls back to the HTTP `Date` response header (sent automatically by virtually
+    // every server) if no explicit field is present.
+    const serverTimeRaw = res?.data?.serverTime || res?.headers?.date;
+    if (serverTimeRaw) {
+      const serverTime = new Date(serverTimeRaw).getTime();
+      if (!Number.isNaN(serverTime)) {
+        clockOffsetRef.current = serverTime - Date.now();
+      }
+    }
+  };
+  // -----------------------------------------------------------------------------
+
   useEffect(() => {
     const fetchExam = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/exam/${id}`, { withCredentials: true });
+
+        applyServerTimeFromResponse(res);
+
         if (res.data.success) {
           setExam(res.data.exam);
-          
+
           // --- HYDRATION: Load saved progress from LocalStorage ---
           const savedAnswers = localStorage.getItem(`exam_progress_${id}`);
           const savedReview = localStorage.getItem(`exam_review_${id}`);
-          
+
           if (savedAnswers) {
             try {
               setAnswers(JSON.parse(savedAnswers));
@@ -53,10 +94,10 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
           }
           // ------------------------------------------------------
 
-          // Initial phase check
+          // Initial phase check (now anchored to server time, not the device clock)
           const startTime = new Date(res.data.exam.startTime).getTime();
           const endTime = new Date(res.data.exam.endTime).getTime();
-          const currentTime = new Date().getTime();
+          const currentTime = getServerNow();
 
           if (currentTime < startTime) {
             setPhase("waiting");
@@ -76,10 +117,31 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     fetchExam();
   }, [id, router]);
 
+  // --- PERIODIC RESYNC ---------------------------------------------------------
+  // Refreshes the server/client offset every couple of minutes while the exam is
+  // active, so small clock drift over a long exam doesn't accumulate. Failures
+  // here aren't fatal -- we just keep using the last known offset.
+  useEffect(() => {
+    if (phase !== "exam") return;
+
+    const resync = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/exam/${id}`, { withCredentials: true });
+        applyServerTimeFromResponse(res);
+      } catch (e) {
+        console.error("Time resync failed, keeping last known offset", e);
+      }
+    };
+
+    const resyncInterval = setInterval(resync, 2 * 60 * 1000); // every 2 minutes
+    return () => clearInterval(resyncInterval);
+  }, [phase, id]);
+  // -----------------------------------------------------------------------------
+
   useEffect(() => {
     if (!exam || result) return;
     const timer = setInterval(() => {
-      const currentTime = new Date();
+      const currentTime = new Date(getServerNow());
       setNow(currentTime);
 
       const startTime = new Date(exam.startTime).getTime();
@@ -92,7 +154,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         if (phase === "waiting") {
           setPhase("instructions");
         }
-        
+
         const secondsLeft = Math.floor((endTime - nowTime) / 1000);
         setTimeLeft(secondsLeft);
 
@@ -175,7 +237,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         localStorage.removeItem(`exam_review_${id}`);
         // Exit fullscreen after a successful submission so the browser returns to normal mode.
         if (document.fullscreenElement) {
-           document.exitFullscreen().catch(e => console.error(e));
+          document.exitFullscreen().catch(e => console.error(e));
         }
         router.push("/dashboard/exams/thank-you");
       }
@@ -202,13 +264,13 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         <div className="w-full max-w-2xl bg-white rounded-[40px] shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden">
           <div className="p-12 text-center">
             <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-inner">
-               <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Exam hasn't started yet</h1>
             <p className="text-slate-500 mb-8 text-lg font-medium leading-relaxed">This exam is scheduled to start on <br/><span className="text-blue-600 font-bold">{startTime.toLocaleString()}</span></p>
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-50 rounded-2xl border border-slate-100">
-               <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-               <span className="text-sm font-bold text-slate-600">Waiting for start time...</span>
+              <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+              <span className="text-sm font-bold text-slate-600">Waiting for start time...</span>
             </div>
           </div>
         </div>
@@ -222,7 +284,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         <div className="w-full max-w-2xl bg-white rounded-[40px] shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden">
           <div className="p-12 text-center">
             <div className="w-24 h-24 bg-rose-50 text-rose-500 rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-inner">
-               <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Exam has ended</h1>
             <p className="text-slate-500 mb-8 text-lg font-medium">The submission window for this exam is now closed.</p>
@@ -253,57 +315,57 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
           <div className="p-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              <InstructionItem 
-                icon="🛡️" 
-                title="Integrity Mode" 
-                desc="The exam runs in mandatory full-screen. Exiting or switching tabs will be logged as a violation." 
+              <InstructionItem
+                icon="🛡️"
+                title="Integrity Mode"
+                desc="The exam runs in mandatory full-screen. Exiting or switching tabs will be logged as a violation."
               />
-              <InstructionItem 
-                icon="⏱️" 
-                title="Strict Timing" 
-                desc={`You have ${exam.duration} minutes. The system will automatically submit your work when time expires.`} 
+              <InstructionItem
+                icon="⏱️"
+                title="Strict Timing"
+                desc={`You have ${exam.duration} minutes. The system will automatically submit your work when time expires.`}
               />
-              <InstructionItem 
-                icon="💾" 
-                title="Auto-Save" 
-                desc="Your progress is saved locally in real-time. You can resume instantly if your browser crashes." 
+              <InstructionItem
+                icon="💾"
+                title="Auto-Save"
+                desc="Your progress is saved locally in real-time. You can resume instantly if your browser crashes."
               />
-              <InstructionItem 
-                icon="🎯" 
-                title="Marking Scheme" 
-                desc={`Total ${exam.totalMarks} marks. Each question carries a specific weightage shown on the screen.`} 
+              <InstructionItem
+                icon="🎯"
+                title="Marking Scheme"
+                desc={`Total ${exam.totalMarks} marks. Each question carries a specific weightage shown on the screen.`}
               />
-              <InstructionItem 
-                icon="🎨" 
-                title="Navigation" 
-                desc="Use the question palette on the right to jump between questions or mark them for review." 
+              <InstructionItem
+                icon="🎨"
+                title="Navigation"
+                desc="Use the question palette on the right to jump between questions or mark them for review."
               />
-              <InstructionItem 
-                icon="🚫" 
-                title="No Retakes" 
-                desc="Once submitted, you cannot re-enter the exam. Ensure all answers are final before clicking submit." 
+              <InstructionItem
+                icon="🚫"
+                title="No Retakes"
+                desc="Once submitted, you cannot re-enter the exam. Ensure all answers are final before clicking submit."
               />
             </div>
 
             <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 mb-12 flex items-start gap-4">
-               <div className="text-2xl mt-1">💡</div>
-               <div>
-                 <h4 className="font-bold text-blue-900 mb-1 text-sm">Pro Tip</h4>
-                 <p className="text-blue-700 text-xs leading-relaxed font-medium">
-                   Use the "Mark for Review" feature for difficult questions. You can quickly revisit them using the violet-colored markers in the question palette.
-                 </p>
-               </div>
+              <div className="text-2xl mt-1">💡</div>
+              <div>
+                <h4 className="font-bold text-blue-900 mb-1 text-sm">Pro Tip</h4>
+                <p className="text-blue-700 text-xs leading-relaxed font-medium">
+                  Use the "Mark for Review" feature for difficult questions. You can quickly revisit them using the violet-colored markers in the question palette.
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button 
-                onClick={() => router.push("/dashboard/exams")} 
+              <button
+                onClick={() => router.push("/dashboard/exams")}
                 className="flex-1 py-4 px-8 rounded-2xl border-2 border-slate-100 text-slate-500 font-bold hover:bg-slate-50 transition-all active:scale-95"
               >
                 Return to Dashboard
               </button>
-              <button 
-                onClick={startExamWithFullscreen} 
+              <button
+                onClick={startExamWithFullscreen}
                 className="flex-[2] py-4 px-8 rounded-2xl bg-blue-600 text-white font-black text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/25 active:scale-95 hover:scale-[1.02]"
               >
                 I Understand, Start Exam
@@ -314,20 +376,6 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
       </div>
     );
   }
-
-function InstructionItem({ icon, title, desc }: { icon: string, title: string, desc: string }) {
-  return (
-    <div className="flex gap-4">
-      <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm border border-slate-100">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
-        <p className="text-slate-500 text-xs leading-relaxed font-medium">{desc}</p>
-      </div>
-    </div>
-  );
-}
 
   const formatTime = (seconds: number | null) => {
     if (seconds === null) return "--:--";

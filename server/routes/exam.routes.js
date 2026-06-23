@@ -465,6 +465,7 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
 });
 
 // 11. Fetch specific exam questions — MUST be last (wildcard /:id)
+// 11. Fetch specific exam questions — MUST be last (wildcard /:id)
 router.get("/:id", isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
@@ -491,6 +492,7 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         if (!hasStarted && !isAdminOrTrainer) {
             return res.json({
                 success: true,
+                serverTime: now, // lets the frontend sync its countdown to the server's clock
                 exam: {
                     _id: exam._id,
                     title: exam.title,
@@ -508,7 +510,11 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         }
 
         if (isAdminOrTrainer) {
-            return res.json({ success: true, exam });
+            return res.json({
+                success: true,
+                serverTime: now, // lets the frontend sync its countdown to the server's clock
+                exam
+            });
         }
 
         const sanitizedQuestions = exam.questions.map((q, index) => ({
@@ -534,6 +540,7 @@ router.get("/:id", isAuthenticated, async (req, res) => {
 
         res.json({
             success: true,
+            serverTime: now, // lets the frontend sync its countdown to the server's clock
             exam: {
                 _id: exam._id,
                 title: exam.title,
