@@ -39,6 +39,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [reviewIndices, setReviewIndices] = useState<number[]>([]);
+  const [examStartedAt, setExamStartedAt] = useState<string | null>(null);
 
   // --- TIME SYNC -------------------------------------------------------------
   // clockOffsetRef stores (serverTime - clientTime) in ms. We compute this once
@@ -77,7 +78,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
           // --- HYDRATION: Load saved progress from LocalStorage ---
           const savedAnswers = localStorage.getItem(`exam_progress_${id}`);
           const savedReview = localStorage.getItem(`exam_review_${id}`);
+          const savedStartedAt = localStorage.getItem(`exam_startedAt_${id}`);
 
+          if (savedStartedAt) {
+            setExamStartedAt(savedStartedAt);
+          }
           if (savedAnswers) {
             try {
               setAnswers(JSON.parse(savedAnswers));
@@ -218,8 +223,15 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   };
 
   const startExamWithFullscreen = () => {
-    // Start the exam only after asking the browser to enter fullscreen.
     // enterFullscreen();
+    const existing = localStorage.getItem(`exam_startedAt_${id}`);
+    if (existing) {
+      setExamStartedAt(existing);
+    } else {
+      const now = new Date().toISOString();
+      localStorage.setItem(`exam_startedAt_${id}`, now);
+      setExamStartedAt(now);
+    }
     setPhase("exam");
   };
 
@@ -231,10 +243,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     setSubmitting(true);
     try {
-      const res = await axios.post(`${API_URL}/api/exam/${id}/submit`, { answers }, { withCredentials: true });
+      const res = await axios.post(`${API_URL}/api/exam/${id}/submit`, { answers, startedAt: examStartedAt }, { withCredentials: true });
       if (res.data.success) {
         localStorage.removeItem(`exam_progress_${id}`);
         localStorage.removeItem(`exam_review_${id}`);
+        localStorage.removeItem(`exam_startedAt_${id}`);
         // Exit fullscreen after a successful submission so the browser returns to normal mode.
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(e => console.error(e));

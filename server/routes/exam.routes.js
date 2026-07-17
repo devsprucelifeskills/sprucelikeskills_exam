@@ -305,7 +305,76 @@ router.get("/admin/exams-by-batch/:batchId", isAuthenticated, isManager, async (
     }
 });
 
-// 6. Admin — Get all student results for a specific exam
+// 6. Admin — Download exam results as JSON (with optional date range filter)
+router.get("/admin/exam-results/:examId/json", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { examId } = req.params;
+        const { startDate, endDate } = req.query;
+
+        if (!isValidObjectId(examId)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(examId)
+            .select("title description duration passingScore totalMarks startTime endTime courseId batchIds createdBy")
+            .lean();
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        const filter = { examId };
+        if (startDate || endDate) {
+            filter.createdAt = {};
+            if (startDate) filter.createdAt.$gte = new Date(startDate);
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                filter.createdAt.$lte = end;
+            }
+        }
+
+        const results = await ExamResult.find(filter)
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const responseData = {
+            exam: {
+                _id: exam._id,
+                title: exam.title,
+                description: exam.description,
+                duration: exam.duration,
+                startTime: exam.startTime,
+                endTime: exam.endTime,
+                passingScore: exam.passingScore,
+                totalMarks: exam.totalMarks,
+            },
+            filter: {
+                startDate: startDate || null,
+                endDate: endDate || null,
+            },
+            totalResults: results.length,
+            results: results.map(r => ({
+                _id: r._id,
+                studentName: r.studentName,
+                studentEmail: r.studentEmail,
+                score: r.score,
+                isPassed: r.isPassed,
+                startedAt: r.startedAt,
+                submittedAt: r.createdAt,
+                answers: r.answers,
+            })),
+        };
+
+        res.setHeader("Content-Disposition", `attachment; filename="${exam.title.replace(/\s+/g, "_")}_Results.json"`);
+        res.setHeader("Content-Type", "application/json");
+        res.json(responseData);
+    } catch (err) {
+        console.error("Error downloading JSON results:", err);
+        res.status(500).json({ success: false, message: "Failed to download results" });
+    }
+});
+
+// 7. Admin — Get all student results for a specific exam
 router.get("/admin/exam-results/:examId", isAuthenticated, isManager, async (req, res) => {
     try {
         const { examId } = req.params;
@@ -314,7 +383,7 @@ router.get("/admin/exam-results/:examId", isAuthenticated, isManager, async (req
         }
 
         const exam = await Exam.findById(examId)
-            .select("title description duration passingScore totalMarks questions")
+            .select("title description duration passingScore totalMarks startTime endTime questions")
             .lean();
         if (!exam) {
             return res.status(404).json({ success: false, message: "Exam not found" });
@@ -417,7 +486,7 @@ router.get("/my-results/all", isAuthenticated, async (req, res) => {
 // 10. Submit Exam
 router.post("/:id/submit", isAuthenticated, async (req, res) => {
     try {
-        const { answers } = req.body;
+        const { answers, startedAt } = req.body;
 
         const exam = await Exam.findById(req.params.id);
         if (!exam || !exam.isActive) {
@@ -454,6 +523,7 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
             studentEmail: req.user.email,
             score,
             isPassed,
+            startedAt: startedAt ? new Date(startedAt) : null,
             answers: processedAnswers
         });
 

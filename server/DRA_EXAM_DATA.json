@@ -1,0 +1,3837 @@
+[
+  
+  {
+    "_id": "6a154fcb37725d3f657bdb82",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f0575dfe85086dff69b",
+    "studentName": "Prashantkumar mordhwaj katre",
+    "studentEmail": "pmkatre23@gmail.com",
+    "score": 80,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb83"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb84"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdb85"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb86"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdb87"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb88"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb89"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb8a"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb8b"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdb8c"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb8d"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb8e"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb8f"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb90"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdb91"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb92"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb93"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdb94"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb95"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb96"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb97"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb98"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb99"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb9a"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb9b"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdb9c"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb9d"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdb9e"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdb9f"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdba0"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fcb37725d3f657bdba1"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdba2"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdba3"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdba4"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdba5"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdba6"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdba7"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdba8"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fcb37725d3f657bdba9"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fcb37725d3f657bdbaa"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:59:01 PM",
+    "submittedAt": "5/26/2026, 1:16:19 PM"
+  },
+  {
+    "_id": "6a154fe337725d3f657bdbd3",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "6a06f2eeb0b90f503f2c38f8",
+    "studentName": "Aarti Kharkate",
+    "studentEmail": "aartikharkate3@gmail.com",
+    "score": 74,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbd4"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbd5"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbd6"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbd7"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbd8"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbd9"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbda"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbdb"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbdc"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbdd"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbde"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbdf"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe0"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe1"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbe2"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbe3"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe4"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe5"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe6"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbe7"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe8"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbe9"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbea"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbeb"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbec"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbed"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbee"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbef"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbf0"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbf1"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbf2"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbf3"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbf4"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbf5"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbf6"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a154fe337725d3f657bdbf7"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbf8"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbf9"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a154fe337725d3f657bdbfa"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a154fe337725d3f657bdbfb"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:52:57 PM",
+    "submittedAt": "5/26/2026, 1:16:43 PM"
+  },
+  {
+    "_id": "6a15507c37725d3f657bdc88",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69cf800839063e6f54478df6",
+    "studentName": "Shivani Gajbhiye",
+    "studentEmail": "shivanigajbhiye97@gmail.com",
+    "score": 80,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc89"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc8a"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdc8b"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc8c"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdc8d"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc8e"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc8f"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc90"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc91"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdc92"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc93"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc94"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc95"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc96"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdc97"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc98"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc99"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdc9a"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc9b"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdc9c"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc9d"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc9e"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdc9f"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdca0"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdca1"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdca2"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdca3"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdca4"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdca5"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdca6"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15507c37725d3f657bdca7"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdca8"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdca9"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdcaa"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdcab"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdcac"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdcad"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdcae"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15507c37725d3f657bdcaf"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15507c37725d3f657bdcb0"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:57:19 PM",
+    "submittedAt": "5/26/2026, 1:19:16 PM"
+  },
+  {
+    "_id": "6a15510337725d3f657bdd01",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f5375dfe85086dff6aa",
+    "studentName": "Parag ramakant wankhede",
+    "studentEmail": "parag9wankhede@gmail.com",
+    "score": 56,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd02"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd03"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd04"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd05"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 3,
+        "_id": "6a15510337725d3f657bdd06"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd07"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd08"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd09"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 3,
+        "_id": "6a15510337725d3f657bdd0a"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd0b"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd0c"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd0d"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd0e"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd0f"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd10"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd11"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd12"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd13"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd14"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd15"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd16"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd17"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd18"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 3,
+        "_id": "6a15510337725d3f657bdd19"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd1a"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd1b"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd1c"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd1d"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd1e"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510337725d3f657bdd1f"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd20"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd21"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd22"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd23"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd24"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd25"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd26"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd27"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510337725d3f657bdd28"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510337725d3f657bdd29"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:51:00 PM",
+    "submittedAt": "5/26/2026, 1:21:31 PM"
+  },
+  {
+    "_id": "6a15510e37725d3f657bdd52",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69b14bc58769e89a36889212",
+    "studentName": "Sonali Telang",
+    "studentEmail": "sonalitelang86@gmail.com",
+    "score": 76,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd53"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd54"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd55"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd56"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd57"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd58"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd59"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd5a"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd5b"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd5c"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd5d"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd5e"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd5f"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd60"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd61"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd62"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd63"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd64"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd65"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd66"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd67"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd68"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd69"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd6a"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd6b"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd6c"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd6d"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd6e"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd6f"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd70"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd71"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd72"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd73"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd74"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd75"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a15510e37725d3f657bdd76"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd77"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd78"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15510e37725d3f657bdd79"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15510e37725d3f657bdd7a"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:51:13 PM",
+    "submittedAt": "5/26/2026, 1:21:42 PM"
+  },
+  {
+    "_id": "6a15512537725d3f657bdda3",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941eeb75dfe85086dff695",
+    "studentName": "Lata ramchand taram",
+    "studentEmail": "latataram157@gmail.com",
+    "score": 78,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bdda4"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bdda5"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bdda6"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bdda7"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bdda8"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bdda9"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddaa"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddab"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddac"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddad"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddae"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddaf"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddb0"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddb1"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddb2"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddb3"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddb4"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddb5"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddb6"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddb7"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddb8"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddb9"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddba"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddbb"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddbc"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddbd"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddbe"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddbf"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddc0"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddc1"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddc2"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddc3"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddc4"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddc5"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddc6"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a15512537725d3f657bddc7"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddc8"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddc9"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15512537725d3f657bddca"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15512537725d3f657bddcb"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:53:25 PM",
+    "submittedAt": "5/26/2026, 1:22:05 PM"
+  },
+  {
+    "_id": "6a15516137725d3f657bddf4",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f2b75dfe85086dff6a4",
+    "studentName": "Ujma Bashiruddin Kadri",
+    "studentEmail": "qadriuzma5@gmail.com",
+    "score": 78,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bddf5"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bddf6"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bddf7"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bddf8"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bddf9"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bddfa"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bddfb"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bddfc"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bddfd"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bddfe"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bddff"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde00"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde01"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde02"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde03"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde04"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde05"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde06"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde07"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde08"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde09"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde0a"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde0b"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde0c"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde0d"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde0e"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde0f"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde10"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde11"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde12"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde13"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde14"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde15"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde16"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde17"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a15516137725d3f657bde18"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde19"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde1a"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15516137725d3f657bde1b"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15516137725d3f657bde1c"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:48:07 PM",
+    "submittedAt": "5/26/2026, 1:23:05 PM"
+  },
+  {
+    "_id": "6a15519a37725d3f657bde45",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "6a03054ef14b8d23232d027f",
+    "studentName": "Kushal Ramesh Borkar",
+    "studentEmail": "kushalborkar884@gmail.com",
+    "score": 78,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde46"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde47"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde48"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde49"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde4a"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde4b"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde4c"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde4d"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde4e"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde4f"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde50"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde51"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde52"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde53"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde54"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde55"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde56"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde57"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde58"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde59"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde5a"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde5b"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde5c"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde5d"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde5e"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde5f"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde60"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde61"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde62"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde63"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde64"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde65"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde66"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde67"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde68"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a15519a37725d3f657bde69"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde6a"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde6b"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15519a37725d3f657bde6c"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15519a37725d3f657bde6d"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:47:09 PM",
+    "submittedAt": "5/26/2026, 1:24:02 PM"
+  },
+  {
+    "_id": "6a1551f837725d3f657bdefa",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "6a147448718ca0f526a4d5fe",
+    "studentName": "Yash Satpute",
+    "studentEmail": "satputeyash7@gmail.com",
+    "score": 74,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdefb"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdefc"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdefd"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdefe"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdeff"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdf00"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf01"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf02"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf03"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf04"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf05"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdf06"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf07"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf08"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf09"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdf0a"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf0b"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf0c"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf0d"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdf0e"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf0f"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf10"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf11"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf12"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdf13"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf14"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf15"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf16"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 3,
+        "_id": "6a1551f837725d3f657bdf17"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 2,
+        "_id": "6a1551f837725d3f657bdf18"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf19"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf1a"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf1b"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf1c"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf1d"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf1e"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf1f"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf20"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a1551f837725d3f657bdf21"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a1551f837725d3f657bdf22"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:47:23 PM",
+    "submittedAt": "5/26/2026, 1:25:36 PM"
+  },
+  {
+    "_id": "6a15525237725d3f657bdf4b",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f5e75dfe85086dff6ad",
+    "studentName": "Pratiksha Meshram",
+    "studentEmail": "meshrampratiksha900@gmail.com",
+    "score": 78,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf4c"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf4d"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf4e"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf4f"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf50"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf51"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf52"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf53"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf54"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf55"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf56"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf57"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf58"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf59"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf5a"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf5b"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf5c"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf5d"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf5e"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf5f"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf60"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf61"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf62"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf63"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf64"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf65"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf66"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf67"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf68"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf69"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf6a"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf6b"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf6c"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf6d"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf6e"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a15525237725d3f657bdf6f"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf70"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf71"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15525237725d3f657bdf72"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15525237725d3f657bdf73"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:45:07 PM",
+    "submittedAt": "5/26/2026, 1:27:06 PM"
+  },
+  {
+    "_id": "6a1552a437725d3f657be050",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f3575dfe85086dff6a7",
+    "studentName": "Naval Khemraj Chaudhari",
+    "studentEmail": "naval.miet@gmail.com",
+    "score": 76,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be051"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be052"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be053"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be054"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be055"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be056"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be057"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be058"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be059"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be05a"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be05b"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be05c"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be05d"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be05e"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be05f"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be060"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be061"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be062"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be063"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be064"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be065"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be066"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be067"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be068"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be069"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be06a"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be06b"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be06c"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be06d"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be06e"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a1552a437725d3f657be06f"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be070"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be071"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be072"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be073"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be074"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be075"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be076"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a1552a437725d3f657be077"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a1552a437725d3f657be078"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:45:40 PM",
+    "submittedAt": "5/26/2026, 1:28:28 PM"
+  },
+  {
+    "_id": "6a15532d37725d3f657be0a1",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941fb275dfe85086dff6bf",
+    "studentName": "Ankit satendra patle",
+    "studentEmail": "ankitpatle196@gmail.com",
+    "score": 72,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0a2"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0a3"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0a4"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0a5"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0a6"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0a7"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0a8"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0a9"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0aa"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0ab"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0ac"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0ad"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0ae"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0af"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0b0"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0b1"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0b2"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0b3"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0b4"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0b5"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0b6"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0b7"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0b8"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0b9"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0ba"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0bb"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0bc"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0bd"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0be"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0bf"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15532d37725d3f657be0c0"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0c1"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0c2"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0c3"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0c4"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0c5"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0c6"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0c7"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15532d37725d3f657be0c8"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15532d37725d3f657be0c9"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:55:21 PM",
+    "submittedAt": "5/26/2026, 1:30:45 PM"
+  },
+  {
+    "_id": "6a15535137725d3f657be11a",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "6a129f91dfb8131c60c938d2",
+    "studentName": "Udaykumar Iyyanar",
+    "studentEmail": "uiyyanar@gmail.com",
+    "score": 74,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be11b"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be11c"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be11d"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be11e"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 3,
+        "_id": "6a15535137725d3f657be11f"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be120"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be121"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be122"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be123"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be124"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be125"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be126"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be127"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be128"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be129"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be12a"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be12b"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be12c"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be12d"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be12e"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be12f"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be130"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be131"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be132"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be133"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be134"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be135"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be136"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be137"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be138"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15535137725d3f657be139"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be13a"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be13b"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be13c"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be13d"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be13e"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be13f"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be140"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15535137725d3f657be141"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15535137725d3f657be142"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:55:52 PM",
+    "submittedAt": "5/26/2026, 1:31:21 PM"
+  },
+  {
+    "_id": "6a15537137725d3f657be16b",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941e2244f1d12368e3576e",
+    "studentName": "Simran shankarlal Jaiswal",
+    "studentEmail": "jaiswalsimran081@gmail.com",
+    "score": 78,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be16c"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be16d"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be16e"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be16f"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be170"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be171"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be172"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be173"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be174"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be175"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be176"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be177"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be178"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be179"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be17a"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be17b"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be17c"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be17d"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be17e"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be17f"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be180"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be181"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be182"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be183"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be184"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be185"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be186"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be187"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be188"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be189"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a15537137725d3f657be18a"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be18b"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be18c"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be18d"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be18e"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be18f"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be190"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be191"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a15537137725d3f657be192"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a15537137725d3f657be193"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:57:02 PM",
+    "submittedAt": "5/26/2026, 1:31:53 PM"
+  },
+  {
+    "_id": "6a1553ef37725d3f657be1e4",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941ef775dfe85086dff698",
+    "studentName": "Pranali Rajkumar Meshram",
+    "studentEmail": "pranalimeshram48@gmail.com",
+    "score": 80,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1e5"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1e6"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be1e7"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1e8"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be1e9"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1ea"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1eb"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1ec"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1ed"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be1ee"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1ef"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1f0"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1f1"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1f2"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be1f3"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1f4"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1f5"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be1f6"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1f7"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1f8"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1f9"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1fa"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1fb"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1fc"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be1fd"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be1fe"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be1ff"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be200"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be201"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be202"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a1553ef37725d3f657be203"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be204"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be205"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be206"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be207"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be208"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be209"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be20a"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a1553ef37725d3f657be20b"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a1553ef37725d3f657be20c"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:59:56 PM",
+    "submittedAt": "5/26/2026, 1:33:59 PM"
+  },
+  {
+    "_id": "6a1554c937725d3f657be235",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f8475dfe85086dff6b3",
+    "studentName": "Saurabh Rameshwar Nagpure",
+    "studentEmail": "rohitnagpure196@gmail.com",
+    "score": 72,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 3,
+        "_id": "6a1554c937725d3f657be236"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be237"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be238"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be239"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be23a"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be23b"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be23c"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be23d"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be23e"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be23f"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be240"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be241"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be242"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be243"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be244"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be245"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be246"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be247"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be248"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be249"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be24a"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be24b"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be24c"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be24d"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be24e"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be24f"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be250"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be251"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be252"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be253"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a1554c937725d3f657be254"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be255"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be256"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be257"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be258"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be259"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be25a"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be25b"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a1554c937725d3f657be25c"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a1554c937725d3f657be25d"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:46:36 PM",
+    "submittedAt": "5/26/2026, 1:37:37 PM"
+  },
+  {
+    "_id": "6a1555d537725d3f657be286",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69941f6875dfe85086dff6b0",
+    "studentName": "kalpeshKumar BharatKumar tembhare",
+    "studentEmail": "iamkalpesh18092003@gmail.com",
+    "score": 76,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be287"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be288"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be289"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be28a"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be28b"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be28c"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be28d"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be28e"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be28f"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be290"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be291"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be292"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be293"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be294"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be295"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be296"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be297"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be298"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be299"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be29a"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be29b"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be29c"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be29d"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be29e"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be29f"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be2a0"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2a1"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2a2"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be2a3"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 3,
+        "_id": "6a1555d537725d3f657be2a4"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a1555d537725d3f657be2a5"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be2a6"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2a7"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2a8"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be2a9"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2aa"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be2ab"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2ac"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a1555d537725d3f657be2ad"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a1555d537725d3f657be2ae"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:43:48 PM",
+    "submittedAt": "5/26/2026, 1:42:05 PM"
+  },
+  {
+    "_id": "6a1556e037725d3f657be2d7",
+    "examId": "6a146b5f8a2d86c74cb579d7",
+    "studentId": "69dcb91fe71d59e566483fb8",
+    "studentName": "Swati Ravishankar Damahe",
+    "studentEmail": "swatidamahe702@gmail.com",
+    "score": 74,
+    "isPassed": true,
+    "answers": [
+      {
+        "questionIndex": 0,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2d8"
+      },
+      {
+        "questionIndex": 1,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2d9"
+      },
+      {
+        "questionIndex": 2,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2da"
+      },
+      {
+        "questionIndex": 3,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2db"
+      },
+      {
+        "questionIndex": 4,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2dc"
+      },
+      {
+        "questionIndex": 5,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2dd"
+      },
+      {
+        "questionIndex": 6,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2de"
+      },
+      {
+        "questionIndex": 7,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2df"
+      },
+      {
+        "questionIndex": 8,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2e0"
+      },
+      {
+        "questionIndex": 9,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2e1"
+      },
+      {
+        "questionIndex": 10,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2e2"
+      },
+      {
+        "questionIndex": 11,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2e3"
+      },
+      {
+        "questionIndex": 12,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2e4"
+      },
+      {
+        "questionIndex": 13,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2e5"
+      },
+      {
+        "questionIndex": 14,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2e6"
+      },
+      {
+        "questionIndex": 15,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2e7"
+      },
+      {
+        "questionIndex": 16,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2e8"
+      },
+      {
+        "questionIndex": 17,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2e9"
+      },
+      {
+        "questionIndex": 18,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2ea"
+      },
+      {
+        "questionIndex": 19,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2eb"
+      },
+      {
+        "questionIndex": 20,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2ec"
+      },
+      {
+        "questionIndex": 21,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2ed"
+      },
+      {
+        "questionIndex": 22,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2ee"
+      },
+      {
+        "questionIndex": 23,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2ef"
+      },
+      {
+        "questionIndex": 24,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2f0"
+      },
+      {
+        "questionIndex": 25,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2f1"
+      },
+      {
+        "questionIndex": 26,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2f2"
+      },
+      {
+        "questionIndex": 27,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2f3"
+      },
+      {
+        "questionIndex": 28,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2f4"
+      },
+      {
+        "questionIndex": 29,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2f5"
+      },
+      {
+        "questionIndex": 30,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2f6"
+      },
+      {
+        "questionIndex": 31,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2f7"
+      },
+      {
+        "questionIndex": 32,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2f8"
+      },
+      {
+        "questionIndex": 33,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2f9"
+      },
+      {
+        "questionIndex": 34,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2fa"
+      },
+      {
+        "questionIndex": 35,
+        "selectedOptionIndex": 2,
+        "_id": "6a1556e037725d3f657be2fb"
+      },
+      {
+        "questionIndex": 36,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2fc"
+      },
+      {
+        "questionIndex": 37,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2fd"
+      },
+      {
+        "questionIndex": 38,
+        "selectedOptionIndex": 0,
+        "_id": "6a1556e037725d3f657be2fe"
+      },
+      {
+        "questionIndex": 39,
+        "selectedOptionIndex": 1,
+        "_id": "6a1556e037725d3f657be2ff"
+      }
+    ],
+    "startedAt": "5/26/2026, 12:57:05 PM",
+    "submittedAt": "5/26/2026, 1:46:32 PM"
+  }
+]

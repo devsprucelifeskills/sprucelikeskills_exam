@@ -28,6 +28,10 @@ const examResultSchema = new mongoose.Schema(
             type: Boolean,
             required: true,
         },
+        startedAt: {
+            type: Date,
+            default: null,
+        },
         answers: [{
             questionIndex: Number,
             selectedOptionIndex: Number,
