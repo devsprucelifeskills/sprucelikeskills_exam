@@ -51,7 +51,7 @@ export default function Navbar({ user }: NavbarProps) {
         </button>
 
         <Image
-          src="/spruceLogo.svg"
+          src="/spruceLogo.png"
           alt="Spruce Logo"
           width={130}
           height={40}

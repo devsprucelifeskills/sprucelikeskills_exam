@@ -522,7 +522,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-sm">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <Image src="/spruceLogo.svg" alt="Spruce Logo" width={100} height={32} className="h-8 w-auto" />
+            <Image src="/spruceLogo.png" alt="Spruce Logo" width={100} height={32} className="h-8 w-auto" />
             <div>
               <h1 className="font-bold text-slate-800 text-sm leading-tight">{exam.title}</h1>
               <p className="text-xs text-slate-400">{totalCount} Questions</p>

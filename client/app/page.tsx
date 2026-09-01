@@ -96,7 +96,7 @@ function AuthForm() {
     <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 md:p-10 space-y-6 border border-zinc-100 transition-all duration-300 hover:shadow-zinc-200">
       <div className="flex flex-col items-center text-center space-y-2">
         <Image 
-          src="/spruceLogo.svg" 
+          src="/spruceLogo.png" 
           alt="Spruce Logo" 
           width={180} 
           height={80} 
