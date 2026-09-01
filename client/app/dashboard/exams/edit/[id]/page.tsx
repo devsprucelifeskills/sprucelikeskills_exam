@@ -34,6 +34,8 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
   const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const [allowedStudents, setAllowedStudents] = useState<string[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
+  const [enableAntiCheating, setEnableAntiCheating] = useState(false);
   
   // Data States
   const [courses, setCourses] = useState<any[]>([]);
@@ -69,10 +71,12 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
           }
           setPassingScore(e.passingScore);
           setTotalMarks(e.totalMarks);
-          setSelectedCourse(e.courseId);
+          setSelectedCourse(e.courseId || "");
           setSelectedBatches(e.batchIds || []);
           setAllowedStudents(e.allowedStudents || []);
           setQuestions(e.questions);
+          setIsPublic(!!e.isPublic);
+          setEnableAntiCheating(!!e.enableAntiCheating);
         }
 
         // Fetch Courses
@@ -197,7 +201,13 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
     e.preventDefault();
     setSaving(true);
 
-    if (!title || !selectedCourse || selectedBatches.length === 0 || !startTime) {
+    if (!title || !startTime) {
+      alert("Please fill in the exam title and start time.");
+      setSaving(false);
+      return;
+    }
+
+    if (!isPublic && (!selectedCourse || selectedBatches.length === 0)) {
       alert("Please fill all basic details, select at least one batch, and provide a start time.");
       setSaving(false);
       return;
@@ -214,7 +224,9 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
         passingScore,
         totalMarks,
         questions,
-        startTime: new Date(startTime).toISOString()
+        startTime: new Date(startTime).toISOString(),
+        isPublic,
+        enableAntiCheating
       }, { withCredentials: true });
 
       if (res.data.success) {
@@ -257,68 +269,96 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
             {/* Step 1: Target Audience */}
             <div className="bg-white  rounded-3xl p-8 shadow-sm border border-zinc-100 ">
               <h2 className="text-xl font-bold mb-6 text-zinc-900 ">1. Target Audience</h2>
-              
-              <div className="mb-8">
-                <label className="block text-sm font-medium text-zinc-700  mb-2">Select Course</label>
-                <select 
-                  value={selectedCourse}
-                  onChange={e => setSelectedCourse(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 outline-none"
-                  required
+
+              {/* Public Test Toggle */}
+              <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
+                  <p className="text-xs text-zinc-500 mt-1 max-w-sm">
+                    Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span>, even if they are not enrolled in any course or batch.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPublic(prev => !prev)}
+                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    isPublic ? 'bg-blue-600' : 'bg-zinc-300'
+                  }`}
+                  aria-pressed={isPublic}
+                  aria-label="Toggle public test"
                 >
-                  <option value="">Choose a course...</option>
-                  {courses.map(course => (
-                    <option key={course._id} value={course._id}>{course.title}</option>
-                  ))}
-                </select>
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                      isPublic ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
 
-              <div className="mb-8">
-                <label className="block text-sm font-medium text-zinc-700  mb-4">Select Batches</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {batches.map(batch => (
-                    <label key={batch._id} className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${selectedBatches.includes(batch._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-zinc-50 border-zinc-100   opacity-60 hover:opacity-100'}`}>
-                      <input 
-                        type="checkbox"
-                        checked={selectedBatches.includes(batch._id)}
-                        onChange={() => toggleBatch(batch._id)}
-                        className="w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500"
-                      />
-                      <span className={`font-bold text-sm ${selectedBatches.includes(batch._id) ? 'text-blue-700 ' : 'text-zinc-700 '}`}>{batch.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {allStudents.length > 0 && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="text-sm font-medium text-zinc-700 ">Select Students ({allowedStudents.length}/{allStudents.length})</label>
-                    <button 
-                      type="button"
-                      onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
-                      className="text-sm text-blue-600  font-semibold hover:underline"
+              {!isPublic && (
+                <>
+                  <div className="mb-8">
+                    <label className="block text-sm font-medium text-zinc-700  mb-2">Select Course</label>
+                    <select 
+                      value={selectedCourse}
+                      onChange={e => setSelectedCourse(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 outline-none"
                     >
-                      {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
-                    </button>
+                      <option value="">Choose a course...</option>
+                      {courses.map(course => (
+                        <option key={course._id} value={course._id}>{course.title}</option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50  rounded-xl border border-zinc-200 ">
-                    {allStudents.map(student => (
-                      <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-white border-zinc-200   opacity-60 hover:opacity-100'}`}>
-                        <input 
-                          type="checkbox"
-                          checked={allowedStudents.includes(student._id)}
-                          onChange={() => toggleStudent(student._id)}
-                          className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <div className="overflow-hidden">
-                          <p className="text-sm font-bold text-zinc-900  truncate">{student.name}</p>
-                          <p className="text-xs text-zinc-500  truncate">{student.email}</p>
-                        </div>
-                      </label>
-                    ))}
+
+                  <div className="mb-8">
+                    <label className="block text-sm font-medium text-zinc-700  mb-4">Select Batches</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {batches.map(batch => (
+                        <label key={batch._id} className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${selectedBatches.includes(batch._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-zinc-50 border-zinc-100   opacity-60 hover:opacity-100'}`}>
+                          <input 
+                            type="checkbox"
+                            checked={selectedBatches.includes(batch._id)}
+                            onChange={() => toggleBatch(batch._id)}
+                            className="w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500"
+                          />
+                          <span className={`font-bold text-sm ${selectedBatches.includes(batch._id) ? 'text-blue-700 ' : 'text-zinc-700 '}`}>{batch.name}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                </div>
+
+                  {allStudents.length > 0 && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex justify-between items-center mb-4">
+                        <label className="text-sm font-medium text-zinc-700 ">Select Students ({allowedStudents.length}/{allStudents.length})</label>
+                        <button 
+                          type="button"
+                          onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
+                          className="text-sm text-blue-600  font-semibold hover:underline"
+                        >
+                          {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                        {allStudents.map(student => (
+                          <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-white border-zinc-200   opacity-60 hover:opacity-100'}`}>
+                            <input 
+                              type="checkbox"
+                              checked={allowedStudents.includes(student._id)}
+                              onChange={() => toggleStudent(student._id)}
+                              className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <div className="overflow-hidden">
+                              <p className="text-sm font-bold text-zinc-900  truncate">{student.name}</p>
+                              <p className="text-xs text-zinc-500  truncate">{student.email}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -345,6 +385,34 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
                     className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none"
                     placeholder="Instructions for students..."
                   />
+                </div>
+
+                {/* Anti-Cheating Toggle */}
+                <div className="p-4 rounded-2xl border-2 border-dashed border-amber-200 bg-amber-50/60 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🛡️</span>
+                      <p className="text-sm font-bold text-zinc-900">Enable Anti-Cheating Mode</p>
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-1 max-w-md leading-relaxed">
+                      Enforces mandatory fullscreen, disables text selection & right-click, and detects tab switching with automatic submission on violations.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEnableAntiCheating(prev => !prev)}
+                    className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${
+                      enableAntiCheating ? 'bg-amber-600' : 'bg-zinc-300'
+                    }`}
+                    aria-pressed={enableAntiCheating}
+                    aria-label="Toggle anti-cheating mode"
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                        enableAntiCheating ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>

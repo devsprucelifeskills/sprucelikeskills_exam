@@ -6,14 +6,21 @@ import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { API_URL } from "@/lib/api";
 
-function LoginForm() {
+function AuthForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Form inputs
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  
   const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -26,38 +33,81 @@ function LoginForm() {
     window.location.href = `${API_URL}/api/auth/google`;
   };
 
-  const handleLocalLogin = async (e: React.FormEvent) => {
+  const handleLocalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, { email, password }, { withCredentials: true });
-      if (res.data.success) {
-        router.push("/dashboard");
+
+    if (isSignUp) {
+      // Registration Validation
+      if (!name.trim()) {
+        setError("Please enter your full name");
+        setLoading(false);
+        return;
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "An error occurred during login");
-    } finally {
-      setLoading(false);
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters long");
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await axios.post(`${API_URL}/api/auth/register`, {
+          name,
+          email,
+          password,
+          contact
+        }, { withCredentials: true });
+
+        if (res.data.success) {
+          router.push("/dashboard");
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.message || "An error occurred during registration");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Login
+      try {
+        const res = await axios.post(`${API_URL}/api/auth/login`, { email, password }, { withCredentials: true });
+        if (res.data.success) {
+          router.push("/dashboard");
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.message || "An error occurred during login");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
+  const toggleAuthMode = () => {
+    setIsSignUp(prev => !prev);
+    setError(null);
+  };
+
   return (
-    <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-10 space-y-8 border border-zinc-100 transition-all duration-300 hover:shadow-zinc-200">
+    <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 md:p-10 space-y-6 border border-zinc-100 transition-all duration-300 hover:shadow-zinc-200">
       <div className="flex flex-col items-center text-center space-y-2">
         <Image 
           src="/spruceLogo.svg" 
           alt="Spruce Logo" 
           width={180} 
           height={80} 
-          className="mb-4 h-auto"
+          className="mb-2 h-auto"
           priority
         />
         <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
-          Welcome Back
+          {isSignUp ? "Create Account" : "Welcome Back"}
         </h1>
-        <p className="text-zinc-500">
-          Please sign in with your corporate account
+        <p className="text-zinc-500 text-sm">
+          {isSignUp ? "Sign up to get started with your assessments" : "Please sign in with your account"}
         </p>
       </div>
 
@@ -67,7 +117,21 @@ function LoginForm() {
         </div>
       )}
 
-      <form onSubmit={handleLocalLogin} className="space-y-4">
+      <form onSubmit={handleLocalSubmit} className="space-y-4">
+        {isSignUp && (
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1">Full Name</label>
+            <input 
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+        )}
+
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">Email</label>
           <input 
@@ -79,51 +143,79 @@ function LoginForm() {
             required
           />
         </div>
+
+        {isSignUp && (
           <div>
-      <label className="block text-sm font-medium text-zinc-700 mb-1">
-        Password
-      </label>
+            <label className="block text-sm font-medium text-zinc-700 mb-1">Contact Number (Optional)</label>
+            <input 
+              type="tel" 
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+              placeholder="9876543210"
+            />
+          </div>
+        )}
 
-      <div className="relative">
-        <input
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none pr-16"
-          placeholder="••••••••"
-          required
-        />
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none pr-16"
+              placeholder="••••••••"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600"
-        >
-          {showPassword ? "Hide" : "Show"}
-        </button>
-      </div>
-    </div>
-        
+        {isSignUp && (
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1">
+              Confirm Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center py-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors disabled:opacity-70"
+          className="w-full flex items-center justify-center py-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-70 active:scale-95"
         >
-          {loading ? "Signing in..." : "Sign In"}
+          {loading ? (isSignUp ? "Creating account..." : "Signing in...") : (isSignUp ? "Sign Up" : "Sign In")}
         </button>
       </form>
 
-      <div className="relative flex items-center py-2">
+      <div className="relative flex items-center py-1">
         <div className="flex-grow border-t border-zinc-200"></div>
-        <span className="flex-shrink-0 mx-4 text-sm text-zinc-400">Or continue with</span>
+        <span className="flex-shrink-0 mx-4 text-xs text-zinc-400 font-medium">Or continue with</span>
         <div className="flex-grow border-t border-zinc-200"></div>
       </div>
 
-      <div className="space-y-4">
+      <div>
         <button
           onClick={handleGoogleLogin}
           type="button"
-          className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl border border-zinc-200 bg-white text-zinc-700 font-semibold hover:bg-zinc-50 transition-all duration-200 active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl border border-zinc-200 bg-white text-zinc-700 font-semibold hover:bg-zinc-50 transition-all duration-200 active:scale-[0.98]"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -147,9 +239,22 @@ function LoginForm() {
         </button>
       </div>
 
-      <div className="pt-6 border-t border-zinc-100">
+      <div className="pt-4 text-center">
+        <p className="text-sm text-zinc-600">
+          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+          <button
+            type="button"
+            onClick={toggleAuthMode}
+            className="font-bold text-blue-600 hover:underline focus:outline-none"
+          >
+            {isSignUp ? "Sign In" : "Sign Up"}
+          </button>
+        </p>
+      </div>
+
+      <div className="pt-4 border-t border-zinc-100">
         <p className="text-center text-xs text-zinc-400">
-          By signing in, you agree to our <br />
+          By continuing, you agree to our <br />
           <span className="font-medium hover:text-zinc-600 cursor-pointer">Terms of Service</span> and <span className="font-medium hover:text-zinc-600 cursor-pointer">Privacy Policy</span>
         </p>
       </div>
@@ -159,16 +264,17 @@ function LoginForm() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 font-sans">
       <Suspense fallback={
         <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-10 flex flex-col items-center justify-center space-y-4">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
           <p className="text-zinc-500 animate-pulse text-sm font-medium">Loading session...</p>
         </div>
       }>
-        <LoginForm />
+        <AuthForm />
       </Suspense>
     </div>
   );
 }
+
 

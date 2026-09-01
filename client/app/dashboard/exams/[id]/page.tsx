@@ -41,6 +41,24 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [reviewIndices, setReviewIndices] = useState<number[]>([]);
   const [examStartedAt, setExamStartedAt] = useState<string | null>(null);
 
+  // Anti-Cheating States & Refs
+  const [warningsCount, setWarningsCount] = useState<number>(0);
+  const [showWarningModal, setShowWarningModal] = useState<boolean>(false);
+  const [warningMessage, setWarningMessage] = useState<string>("");
+
+  const warningsCountRef = useRef<number>(0);
+  const isWarningModalOpenRef = useRef<boolean>(false);
+  const isSubmittingOrEndedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    warningsCountRef.current = warningsCount;
+  }, [warningsCount]);
+
+  useEffect(() => {
+    isSubmittingOrEndedRef.current = submitting || !!result || phase === "ended";
+  }, [submitting, result, phase]);
+
+
   // --- TIME SYNC -------------------------------------------------------------
   // clockOffsetRef stores (serverTime - clientTime) in ms. We compute this once
   // when the exam loads (and refresh it periodically below), then use
@@ -198,32 +216,96 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     });
   };
 
-  // Tracks whether the browser is currently in fullscreen mode.
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  useEffect(() => {
-    // Keep React state in sync with the browser fullscreen API.
-    // This lets the UI react immediately when the user enters or exits fullscreen.
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
-
   const enterFullscreen = () => {
-    // Request fullscreen on the root document element so the whole exam page is covered.
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
       elem.requestFullscreen().catch(err => {
-        // Browsers may reject fullscreen if the user gesture is missing or permissions block it.
         console.error(`Error attempting to enable full-screen mode: ${err.message}`);
       });
     }
   };
 
+  const triggerViolation = (reason: string) => {
+    if (phase !== "exam" || !exam?.enableAntiCheating || isSubmittingOrEndedRef.current) return;
+    if (isWarningModalOpenRef.current) return;
+
+    const nextCount = warningsCountRef.current + 1;
+    warningsCountRef.current = nextCount;
+    setWarningsCount(nextCount);
+
+    if (nextCount >= 3) {
+      setWarningMessage(`Repeated anti-cheating violations detected due to ${reason}. Your exam is being automatically submitted.`);
+      setShowWarningModal(true);
+      isWarningModalOpenRef.current = true;
+      submitExam(true);
+    } else {
+      setWarningMessage(`${reason} detected! Please return to the exam. Further violations will result in automatic exam submission.`);
+      setShowWarningModal(true);
+      isWarningModalOpenRef.current = true;
+    }
+  };
+
+  useEffect(() => {
+    if (phase !== "exam" || !exam?.enableAntiCheating) return;
+
+    const preventDefault = (e: Event) => e.preventDefault();
+    window.addEventListener("contextmenu", preventDefault);
+    window.addEventListener("copy", preventDefault);
+    window.addEventListener("cut", preventDefault);
+    window.addEventListener("paste", preventDefault);
+    window.addEventListener("selectstart", preventDefault);
+    window.addEventListener("dragstart", preventDefault);
+
+    return () => {
+      window.removeEventListener("contextmenu", preventDefault);
+      window.removeEventListener("copy", preventDefault);
+      window.removeEventListener("cut", preventDefault);
+      window.removeEventListener("paste", preventDefault);
+      window.removeEventListener("selectstart", preventDefault);
+      window.removeEventListener("dragstart", preventDefault);
+    };
+  }, [phase, exam?.enableAntiCheating]);
+
+  useEffect(() => {
+    if (phase !== "exam" || !exam?.enableAntiCheating) return;
+
+    const handleFullscreenChange = () => {
+      const isFull = !!document.fullscreenElement;
+      setIsFullscreen(isFull);
+      if (!isFull && !isSubmittingOrEndedRef.current) {
+        triggerViolation("Fullscreen exit");
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && !isSubmittingOrEndedRef.current) {
+        triggerViolation("Tab switching / Window minimization");
+      }
+    };
+
+    const handleBlur = () => {
+      if (!isSubmittingOrEndedRef.current) {
+        triggerViolation("Window focus loss / Tab switching");
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [phase, exam?.enableAntiCheating]);
+
   const startExamWithFullscreen = () => {
-    // enterFullscreen();
+    if (exam?.enableAntiCheating) {
+      enterFullscreen();
+    }
     const existing = localStorage.getItem(`exam_startedAt_${id}`);
     if (existing) {
       setExamStartedAt(existing);
@@ -331,7 +413,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
               <InstructionItem
                 icon="🛡️"
                 title="Integrity Mode"
-                desc="The exam runs in mandatory full-screen. Exiting or switching tabs will be logged as a violation."
+                desc={exam.enableAntiCheating ? "Anti-Cheating ENABLED: Fullscreen is mandatory. Tab switching and text selection are strictly prohibited and will cause automatic exam submission." : "The exam runs in mandatory full-screen. Exiting or switching tabs will be logged as a violation."}
               />
               <InstructionItem
                 icon="⏱️"
@@ -403,21 +485,39 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const isWarning = timeLeft !== null && timeLeft < 300;
 
   return (
-    <div className="min-h-screen bg-white font-sans">
-      {/* Fullscreen enforcement overlay: if the exam is active and fullscreen is lost,
-          block the UI until the user returns to fullscreen. */}
-      {/* {phase === "exam" && !isFullscreen && (
-        <div className="fixed inset-0 z-[9999] bg-zinc-900/95 backdrop-blur-xl flex items-center justify-center p-6 text-center">
-          <div className="max-w-md w-full bg-white rounded-[40px] p-12 shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-amber-200/50">
-              <svg className="w-10 h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+    <div className={`min-h-screen bg-white font-sans ${exam?.enableAntiCheating && phase === "exam" ? "select-none" : ""}`}>
+      {/* Warning Overlay Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 z-[99999] bg-zinc-950/90 backdrop-blur-xl flex items-center justify-center p-6 text-center animate-in fade-in duration-300">
+          <div className="max-w-md w-full bg-white rounded-[32px] p-8 shadow-2xl border border-rose-100">
+            <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <span className="text-3xl">⚠️</span>
             </div>
-            <h2 className="text-3xl font-black text-zinc-900 mb-4 tracking-tight">Fullscreen Required</h2>
-            <p className="text-zinc-500 mb-10 leading-relaxed font-medium">To maintain exam integrity, you must be in fullscreen mode to continue. All attempts to exit are logged.</p>
-            <button onClick={enterFullscreen} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-500/30 hover:bg-blue-700 hover:scale-[1.02] transition-all active:scale-95">Return to Fullscreen</button>
+            <h2 className="text-2xl font-black text-zinc-900 mb-4">Anti-Cheating Warning</h2>
+            <p className="text-zinc-600 mb-6 leading-relaxed font-medium text-sm">
+              {warningMessage}
+            </p>
+            {warningsCount < 3 ? (
+              <button
+                onClick={() => {
+                  setShowWarningModal(false);
+                  isWarningModalOpenRef.current = false;
+                  if (exam?.enableAntiCheating && !document.fullscreenElement) {
+                    enterFullscreen();
+                  }
+                }}
+                className="w-full py-3.5 bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/25 hover:bg-rose-700 transition-all active:scale-95"
+              >
+                Return to Fullscreen & Resume Exam
+              </button>
+            ) : (
+              <div className="p-3 bg-zinc-100 text-zinc-500 font-bold text-xs rounded-xl">
+                Submitting exam...
+              </div>
+            )}
           </div>
         </div>
-      )} */}
+      )}
 
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-sm">
         <div className="flex items-center justify-between px-6 py-3">

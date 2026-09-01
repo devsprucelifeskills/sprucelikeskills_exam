@@ -49,6 +49,8 @@ export default function CreateExam() {
     { text: "", options: ["", "", "", ""], correctOptionIndex: 0, marks: 1, image: "" }
   ]);
   const [parsing, setParsing] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
+  const [enableAntiCheating, setEnableAntiCheating] = useState(false);
 
   useEffect(() => {
     // Check auth and fetch courses
@@ -231,16 +233,23 @@ export default function CreateExam() {
     setLoading(true);
 
     // Validation
-    if (!title || !selectedCourse || selectedBatches.length === 0 || !startTime) {
-      alert("Please fill all basic details, select at least one batch, and provide a start time.");
+    if (!title || !startTime) {
+      alert("Please fill in the exam title and start time.");
       setLoading(false);
       return;
     }
 
-    if (allowedStudents.length === 0) {
-      alert("Please select at least one student to take the exam.");
-      setLoading(false);
-      return;
+    if (!isPublic) {
+      if (!selectedCourse || selectedBatches.length === 0) {
+        alert("Please fill all basic details, select at least one batch, and provide a start time.");
+        setLoading(false);
+        return;
+      }
+      if (allowedStudents.length === 0) {
+        alert("Please select at least one student to take the exam.");
+        setLoading(false);
+        return;
+      }
     }
 
     const hasEmptyQuestions = questions.some(q => !q.text || q.options.some(opt => !opt));
@@ -261,7 +270,9 @@ export default function CreateExam() {
         passingScore,
         totalMarks,
         questions,
-        startTime: new Date(startTime).toISOString()
+        startTime: new Date(startTime).toISOString(),
+        isPublic,
+        enableAntiCheating
       }, { withCredentials: true });
 
       if (res.data.success) {
@@ -295,85 +306,114 @@ export default function CreateExam() {
             {/* Step 1: Assignment */}
             <div className="bg-white  rounded-3xl p-8 shadow-sm border border-zinc-100 ">
               <h2 className="text-xl font-bold mb-6 text-zinc-900 ">1. Assignment</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Public Test Toggle */}
+              <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-zinc-700  mb-2">Course</label>
-                  <select 
-                    value={selectedCourse} 
-                    onChange={e => { setSelectedCourse(e.target.value); setSelectedBatches([]); }}
-                    className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    required
-                  >
-                    <option value="">Select a Course</option>
-                    {courses.map(c => (
-                      <option key={c._id} value={c._id}>{c.title}</option>
-                    ))}
-                  </select>
+                  <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
+                  <p className="text-xs text-zinc-500 mt-1 max-w-sm">
+                    Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span>, even if they are not enrolled in any course or batch.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700  mb-2">Select Batches</label>
-                  {!selectedCourse ? (
-                    <div className="p-4 text-sm text-zinc-500 bg-zinc-50  rounded-xl border border-zinc-200 ">
-                      Select a course first to view batches.
-                    </div>
-                  ) : batches.length === 0 ? (
-                    <div className="p-4 text-sm text-zinc-500 bg-zinc-50  rounded-xl border border-zinc-200 ">
-                      No batches found for this course.
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto p-2 border border-zinc-200  rounded-xl bg-zinc-50 ">
-                      {batches.map(b => (
-                        <label key={b._id} className="flex items-center gap-3 p-2 hover:bg-white  rounded-lg cursor-pointer transition-colors">
-                          <input 
-                            type="checkbox"
-                            checked={selectedBatches.includes(b._id)}
-                            onChange={() => toggleBatch(b._id)}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-zinc-900  font-medium">{b.name}</span>
-                          <span className="ml-auto text-xs text-zinc-500 bg-zinc-200  px-2 py-1 rounded-full">
-                            {b.students?.length || 0} students
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPublic(prev => !prev)}
+                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    isPublic ? 'bg-blue-600' : 'bg-zinc-300'
+                  }`}
+                  aria-pressed={isPublic}
+                  aria-label="Toggle public test"
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                      isPublic ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
 
-              {/* Targeted Students List */}
-              {allStudents.length > 0 && (
-                <div className="mt-8 border-t border-zinc-200  pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="block text-sm font-medium text-zinc-700 ">
-                      Targeted Students ({allowedStudents.length}/{allStudents.length})
-                    </label>
-                    <button 
-                      type="button"
-                      onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
-                      className="text-sm text-blue-600  font-semibold hover:underline"
-                    >
-                      {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50  rounded-xl border border-zinc-200 ">
-                    {allStudents.map(student => (
-                      <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-white border-zinc-200   opacity-60 hover:opacity-100'}`}>
-                        <input 
-                          type="checkbox"
-                          checked={allowedStudents.includes(student._id)}
-                          onChange={() => toggleStudent(student._id)}
-                          className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <div className="overflow-hidden">
-                          <p className="text-sm font-bold text-zinc-900  truncate">{student.name}</p>
-                          <p className="text-xs text-zinc-500  truncate">{student.email}</p>
+              {!isPublic && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700  mb-2">Course</label>
+                      <select 
+                        value={selectedCourse} 
+                        onChange={e => { setSelectedCourse(e.target.value); setSelectedBatches([]); }}
+                        className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      >
+                        <option value="">Select a Course</option>
+                        {courses.map(c => (
+                          <option key={c._id} value={c._id}>{c.title}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700  mb-2">Select Batches</label>
+                      {!selectedCourse ? (
+                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                          Select a course first to view batches.
                         </div>
-                      </label>
-                    ))}
+                      ) : batches.length === 0 ? (
+                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                          No batches found for this course.
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-48 overflow-y-auto p-2 border border-zinc-200  rounded-xl bg-zinc-50 ">
+                          {batches.map(b => (
+                            <label key={b._id} className="flex items-center gap-3 p-2 hover:bg-white  rounded-lg cursor-pointer transition-colors">
+                              <input 
+                                type="checkbox"
+                                checked={selectedBatches.includes(b._id)}
+                                onChange={() => toggleBatch(b._id)}
+                                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                              />
+                              <span className="text-zinc-900  font-medium">{b.name}</span>
+                              <span className="ml-auto text-xs text-zinc-500 bg-zinc-200  px-2 py-1 rounded-full">
+                                {b.students?.length || 0} students
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-3">Uncheck students to prevent them from seeing or taking this exam.</p>
-                </div>
+
+                  {/* Targeted Students List */}
+                  {allStudents.length > 0 && (
+                    <div className="mt-8 border-t border-zinc-200  pt-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <label className="block text-sm font-medium text-zinc-700 ">
+                          Targeted Students ({allowedStudents.length}/{allStudents.length})
+                        </label>
+                        <button 
+                          type="button"
+                          onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
+                          className="text-sm text-blue-600  font-semibold hover:underline"
+                        >
+                          {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                        {allStudents.map(student => (
+                          <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-white border-zinc-200   opacity-60 hover:opacity-100'}`}>
+                            <input 
+                              type="checkbox"
+                              checked={allowedStudents.includes(student._id)}
+                              onChange={() => toggleStudent(student._id)}
+                              className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <div className="overflow-hidden">
+                              <p className="text-sm font-bold text-zinc-900  truncate">{student.name}</p>
+                              <p className="text-xs text-zinc-500  truncate">{student.email}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                      <p className="text-xs text-zinc-500 mt-3">Uncheck students to prevent them from seeing or taking this exam.</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -400,6 +440,34 @@ export default function CreateExam() {
                     className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none h-24 resize-none"
                     placeholder="Instructions for students..."
                   />
+                </div>
+
+                {/* Anti-Cheating Toggle */}
+                <div className="p-4 rounded-2xl border-2 border-dashed border-amber-200 bg-amber-50/60 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🛡️</span>
+                      <p className="text-sm font-bold text-zinc-900">Enable Anti-Cheating Mode</p>
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-1 max-w-md leading-relaxed">
+                      Enforces mandatory fullscreen, disables text selection & right-click, and detects tab switching with automatic submission on violations.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEnableAntiCheating(prev => !prev)}
+                    className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${
+                      enableAntiCheating ? 'bg-amber-600' : 'bg-zinc-300'
+                    }`}
+                    aria-pressed={enableAntiCheating}
+                    aria-label="Toggle anti-cheating mode"
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                        enableAntiCheating ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>

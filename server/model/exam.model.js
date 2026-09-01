@@ -25,17 +25,25 @@ const examSchema = new mongoose.Schema(
             type: Date,
             required: true,
         },
+        isPublic: {
+            type: Boolean,
+            default: false,
+        },
+        enableAntiCheating: {
+            type: Boolean,
+            default: false,
+        },
         courseId: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true, // References course in auth DB
+            // Not required for public exams
         },
         batchIds: [{
             type: mongoose.Schema.Types.ObjectId,
-            required: true, // References batches in auth DB
+            // Not required for public exams
         }],
         allowedStudents: [{
             type: mongoose.Schema.Types.ObjectId,
-            required: true, // Specific students targeted for this exam
+            // Not required for public exams
         }],
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,

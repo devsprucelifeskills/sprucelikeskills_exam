@@ -73,9 +73,15 @@ export default function AvailableExams() {
                 <div key={exam._id} className="group bg-white rounded-[24px] md:rounded-[32px] p-6 md:p-8 shadow-sm border border-zinc-100 flex flex-col h-full hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-500">
                   <div className="flex-grow">
                     <div className="flex justify-between items-start mb-6">
-                      <span className="px-3 py-1 bg-zinc-50 text-zinc-500 text-[10px] font-black rounded-full uppercase tracking-wider border border-zinc-100 truncate max-w-[150px]">
-                        {exam.batchName}
-                      </span>
+                      {exam.isPublic ? (
+                        <span className="px-3 py-1 bg-teal-50 text-teal-600 text-[10px] font-black rounded-full uppercase tracking-wider border border-teal-100 flex items-center gap-1">
+                          🌐 Public Test
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 bg-zinc-50 text-zinc-500 text-[10px] font-black rounded-full uppercase tracking-wider border border-zinc-100 truncate max-w-[150px]">
+                          {exam.batchName}
+                        </span>
+                      )}
                       {exam.isAttempted && (
                         <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase tracking-wider border border-emerald-100">
                           Completed

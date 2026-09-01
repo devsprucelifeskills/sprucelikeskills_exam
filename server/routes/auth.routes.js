@@ -6,6 +6,64 @@ import User from "../model/user.model.js";
 
 const router = express.Router();
 
+// Local Email/Password Sign Up
+router.post("/register", async (req, res) => {
+    try {
+        const { name, email, password, contact } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, message: "Name, email, and password are required" });
+        }
+
+        if (name.trim().length < 3) {
+            return res.status(400).json({ success: false, message: "Name must be at least 3 characters long" });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, message: "Password must be at least 6 characters long" });
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: "An account with this email already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = await User.create({
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
+            password: hashedPassword,
+            role: "user",
+            contact: contact ? contact.trim() : ""
+        });
+
+        // Generate JWT
+        const token = jwt.sign(
+            { id: newUser._id, role: newUser.role, name: newUser.name, email: newUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        // Send token in cookie
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Account created successfully",
+            user: { id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role }
+        });
+    } catch (err) {
+        console.error("Register Error:", err);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
+
 // Local Email/Password Login
 router.post("/login", async (req, res) => {
     try {

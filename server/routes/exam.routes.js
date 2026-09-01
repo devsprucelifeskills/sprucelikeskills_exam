@@ -172,12 +172,19 @@ router.get("/batches/:courseId", isAuthenticated, isManager, async (req, res) =>
 router.post("/create", isAuthenticated, isManager, async (req, res) => {
     const { 
         title, description, duration, courseId, batchIds, 
-        allowedStudents, passingScore, totalMarks, questions, startTime 
+        allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating
     } = req.body;
 
     try {
-        if (!title || !courseId || !batchIds || batchIds.length === 0 || !allowedStudents || !questions || questions.length === 0) {
+        if (!title || !questions || questions.length === 0) {
             return res.status(400).json({ success: false, message: "Missing required fields or questions" });
+        }
+
+        // For non-public exams, course/batch/students are required
+        if (!isPublic) {
+            if (!courseId || !batchIds || batchIds.length === 0 || !allowedStudents || allowedStudents.length === 0) {
+                return res.status(400).json({ success: false, message: "Missing required fields or questions" });
+            }
         }
 
         const start = new Date(startTime);
@@ -189,12 +196,14 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
             duration,
             startTime: start,
             endTime: end,
-            courseId,
-            batchIds,
-            allowedStudents,
+            courseId: isPublic ? undefined : courseId,
+            batchIds: isPublic ? [] : batchIds,
+            allowedStudents: isPublic ? [] : allowedStudents,
             passingScore,
             totalMarks,
             questions,
+            isPublic: !!isPublic,
+            enableAntiCheating: !!enableAntiCheating,
             createdBy: req.user.id
         });
 
@@ -204,6 +213,7 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to create exam" });
     }
 });
+
 
 // 4. Update an Exam
 router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
@@ -215,7 +225,7 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
 
         const { 
             title, description, duration, courseId, batchIds, 
-            allowedStudents, passingScore, totalMarks, questions, startTime 
+            allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating
         } = req.body;
 
         const start = new Date(startTime);
@@ -227,12 +237,14 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
             duration,
             startTime: start,
             endTime: end,
-            courseId,
-            batchIds,
-            allowedStudents,
+            courseId: isPublic ? undefined : courseId,
+            batchIds: isPublic ? [] : batchIds,
+            allowedStudents: isPublic ? [] : allowedStudents,
             passingScore,
             totalMarks,
-            questions
+            questions,
+            isPublic: !!isPublic,
+            enableAntiCheating: !!enableAntiCheating
         }, { new: true });
 
         if (!updatedExam) {
@@ -245,6 +257,7 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to update exam" });
     }
 });
+
 
 // 4. Admin/Trainer View All Results
 router.get("/admin/results", isAuthenticated, isManager, async (req, res) => {
@@ -438,26 +451,41 @@ router.get("/available", isAuthenticated, async (req, res) => {
         const studentBatches = await Batch.find({ students: req.user.id }, "_id courseId name").lean();
         const batchIds = studentBatches.map(b => b._id);
 
-        if (batchIds.length === 0) {
-            return res.json({ success: true, exams: [] });
+        // Fetch exams the student is directly allowed to take (enrollment-based)
+        let enrollmentExams = [];
+        if (batchIds.length > 0) {
+            enrollmentExams = await Exam.find({ allowedStudents: req.user.id, isActive: true, isPublic: { $ne: true } })
+                .select("title description duration passingScore totalMarks batchIds createdAt isPublic")
+                .lean();
         }
 
-        const exams = await Exam.find({ allowedStudents: req.user.id, isActive: true })
-            .select("title description duration passingScore totalMarks batchIds createdAt")
+        // Fetch all active public exams
+        const publicExams = await Exam.find({ isPublic: true, isActive: true })
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic")
             .lean();
 
+        // Merge and deduplicate by _id
+        const seenIds = new Set(enrollmentExams.map(e => e._id.toString()));
+        const mergedExams = [...enrollmentExams];
+        for (const exam of publicExams) {
+            if (!seenIds.has(exam._id.toString())) {
+                mergedExams.push(exam);
+            }
+        }
+
+        // Get attempt records for all merged exams
         const attemptRecords = await ExamResult.find({
             studentId: req.user.id,
-            examId: { $in: exams.map(e => e._id) }
+            examId: { $in: mergedExams.map(e => e._id) }
         }).lean();
 
         const attemptedExamIds = new Set(attemptRecords.map(r => r.examId.toString()));
 
-        const examsWithContext = exams.map(exam => {
-            const batch = studentBatches.find(b => exam.batchIds.map(id => id.toString()).includes(b._id.toString()));
+        const examsWithContext = mergedExams.map(exam => {
+            const batch = studentBatches.find(b => (exam.batchIds || []).map(id => id.toString()).includes(b._id.toString()));
             return {
                 ...exam,
-                batchName: batch ? batch.name : "Multiple/Unknown Batches",
+                batchName: exam.isPublic ? "Public Test" : (batch ? batch.name : "Multiple/Unknown Batches"),
                 isAttempted: attemptedExamIds.has(exam._id.toString())
             };
         });
@@ -468,6 +496,7 @@ router.get("/available", isAuthenticated, async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to fetch exams" });
     }
 });
+
 
 // 9. Get My Results (Student)
 router.get("/my-results/all", isAuthenticated, async (req, res) => {
@@ -551,8 +580,9 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         const isAdminOrTrainer = req.user.role === "admin" || req.user.role === "trainer";
         const isCreator = exam.createdBy && exam.createdBy.toString() === req.user.id;
         const isAllowedStudent = exam.allowedStudents && exam.allowedStudents.map(id => id.toString()).includes(req.user.id);
+        const isPublicExam = !!exam.isPublic;
 
-        if (!isAdminOrTrainer && !isCreator && !isAllowedStudent) {
+        if (!isAdminOrTrainer && !isCreator && !isAllowedStudent && !isPublicExam) {
             return res.status(403).json({ success: false, message: "You are not authorized to take this exam" });
         }
 
@@ -618,6 +648,7 @@ router.get("/:id", isAuthenticated, async (req, res) => {
                 duration: exam.duration,
                 startTime: exam.startTime,
                 endTime: exam.endTime,
+                enableAntiCheating: exam.enableAntiCheating,
                 questions: shuffledQuestions
             }
         });
