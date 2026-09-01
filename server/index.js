@@ -18,7 +18,10 @@ const PORT = process.env.PORT || 9002;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors("*"));
+app.use(cors({
+    origin: true,       // reflects the request origin — allows all origins
+    credentials: true   // required for cookies (httpOnly auth token)
+}));
 
 // MongoDB Connections
 import { authConnection, examConnection } from "./config/db.js";
