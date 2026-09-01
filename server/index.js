@@ -18,17 +18,7 @@ const PORT = process.env.PORT || 9002;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({
-    origin: function (origin, callback) {
-        const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:3000"];
-        if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true
-}));
+app.use(cors("*"));
 
 // MongoDB Connections
 import { authConnection, examConnection } from "./config/db.js";
@@ -346,7 +336,7 @@ app.listen(PORT, () => {
 //     // New fields
 //     startedAt: timing.startedAt || null,
 //     submittedAt:
-//       timing.submittedAt  
+//       timing.submittedAt
 //   };
 // });
 
