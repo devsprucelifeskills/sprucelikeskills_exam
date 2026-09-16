@@ -20,5 +20,13 @@ const batchSchema = new mongoose.Schema({
     }]
 }, { strict: false });
 
+// Event Schema (Read-only representation of spruceDB.events)
+const eventSchema = new mongoose.Schema({
+    title: String,
+    hasTest: Boolean
+}, { strict: false });
+
 export const Course = authConnection.model("Course", courseSchema, "courses");
 export const Batch = authConnection.model("Batch", batchSchema, "batches");
+export const Event = authConnection.model("Event", eventSchema, "events");
+

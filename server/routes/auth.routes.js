@@ -2,9 +2,11 @@ import express from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import axios from "axios";
 import User from "../model/user.model.js";
 
 const router = express.Router();
+
 
 // Local Email/Password Sign Up
 router.post("/register", async (req, res) => {
@@ -153,6 +155,88 @@ router.post("/logout", (req, res) => {
     res.json({ success: true, message: "Logged out successfully" });
 });
 
+// SSO Login Endpoint
+// Single-Backend verifySsoTicket returns:
+//   { success: true, user: { _id, name, email, contact }, eventId, eventTitle }
+router.post("/sso-login", async (req, res) => {
+    try {
+        const { ticket } = req.body;
+
+        if (!ticket) {
+            return res.status(400).json({ success: false, message: "SSO ticket is required" });
+        }
+
+        // Call Main Backend ticket verification endpoint
+        const mainBackendUrl = process.env.MAIN_BACKEND_URL || "http://localhost:5000";
+        const ssoSecret = process.env.EXAM_PLATFORM_SSO_SECRET || "spruce_exam_sso_secret_key_987654321_secure";
+
+        const verifyRes = await axios.post(
+            `${mainBackendUrl}/api/v6/events/sso/verify-ticket`,
+            { ticket },
+            {
+                headers: {
+                    "x-sso-secret": ssoSecret
+                }
+            }
+        );
+
+        if (!verifyRes.data || !verifyRes.data.success) {
+            return res.status(401).json({ success: false, message: verifyRes.data?.message || "Invalid or expired SSO ticket" });
+        }
+
+        // Destructure matching Single-Backend's actual response shape
+        const { user: mainUser, eventId, eventTitle } = verifyRes.data;
+
+        if (!mainUser) {
+            return res.status(401).json({ success: false, message: "Invalid SSO ticket payload" });
+        }
+
+        // Look up user in shared MongoDB by _id (Single-Backend returns _id) or fallback to email
+        let dbUser = null;
+        const userId = mainUser._id || mainUser.id;
+        if (userId) {
+            dbUser = await User.findById(userId);
+        }
+        if (!dbUser && mainUser.email) {
+            dbUser = await User.findOne({ email: mainUser.email.toLowerCase() });
+        }
+
+        if (!dbUser) {
+            return res.status(404).json({ success: false, message: "User account not found in database" });
+        }
+
+        // Generate SpruceExam JWT
+        const token = jwt.sign(
+            { id: dbUser._id, role: dbUser.role || "user", name: dbUser.name, email: dbUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        // Send token in HttpOnly cookie
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        // Normalize event into { id, title } shape for the frontend
+        const event = eventId ? { id: eventId, title: eventTitle || "" } : null;
+
+        return res.status(200).json({
+            success: true,
+            message: "SSO Login successful",
+            token,
+            user: { id: dbUser._id, name: dbUser.name, email: dbUser.email, role: dbUser.role || "user" },
+            event
+        });
+    } catch (err) {
+        console.error("SSO Login Error:", err?.response?.data || err.message);
+        const errorMessage = err?.response?.data?.message || "Failed to verify SSO ticket";
+        return res.status(401).json({ success: false, message: errorMessage });
+    }
+});
+
 // Verify Current User
 router.get("/me", (req, res) => {
     const token = req.cookies.token;
@@ -167,3 +251,5 @@ router.get("/me", (req, res) => {
 });
 
 export default router;
+
+

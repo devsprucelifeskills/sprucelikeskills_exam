@@ -1,5 +1,5 @@
 import express from "express";
-import { Course, Batch } from "../model/authDbModels.js";
+import { Course, Batch, Event } from "../model/authDbModels.js";
 import Exam from "../model/exam.model.js";
 import ExamResult from "../model/examResult.model.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
@@ -147,6 +147,17 @@ router.get("/courses", isAuthenticated, isManager, async (req, res) => {
     }
 });
 
+// 1b. Fetch Events (hasTest: true) for dropdown
+router.get("/events", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const events = await Event.find({ hasTest: true }, "title _id").lean();
+        res.json({ success: true, events });
+    } catch (err) {
+        console.error("Error fetching events:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch events" });
+    }
+});
+
 // Helper to validate MongoDB ObjectIds
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -172,7 +183,7 @@ router.get("/batches/:courseId", isAuthenticated, isManager, async (req, res) =>
 router.post("/create", isAuthenticated, isManager, async (req, res) => {
     const { 
         title, description, duration, courseId, batchIds, 
-        allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating
+        allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId
     } = req.body;
 
     try {
@@ -196,6 +207,7 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
             duration,
             startTime: start,
             endTime: end,
+            eventId: eventId || null,
             courseId: isPublic ? undefined : courseId,
             batchIds: isPublic ? [] : batchIds,
             allowedStudents: isPublic ? [] : allowedStudents,
@@ -225,7 +237,7 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
 
         const { 
             title, description, duration, courseId, batchIds, 
-            allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating
+            allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId
         } = req.body;
 
         const start = new Date(startTime);
@@ -237,6 +249,7 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
             duration,
             startTime: start,
             endTime: end,
+            eventId: eventId || null,
             courseId: isPublic ? undefined : courseId,
             batchIds: isPublic ? [] : batchIds,
             allowedStudents: isPublic ? [] : allowedStudents,
@@ -246,6 +259,7 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
             isPublic: !!isPublic,
             enableAntiCheating: !!enableAntiCheating
         }, { new: true });
+
 
         if (!updatedExam) {
             return res.status(404).json({ success: false, message: "Exam not found" });
@@ -448,6 +462,8 @@ router.post("/admin/reconduct/:examId/:studentId", isAuthenticated, isManager, a
 // 8. Fetch available exams for the logged-in student
 router.get("/available", isAuthenticated, async (req, res) => {
     try {
+        const { eventId } = req.query;
+
         const studentBatches = await Batch.find({ students: req.user.id }, "_id courseId name").lean();
         const batchIds = studentBatches.map(b => b._id);
 
@@ -455,21 +471,30 @@ router.get("/available", isAuthenticated, async (req, res) => {
         let enrollmentExams = [];
         if (batchIds.length > 0) {
             enrollmentExams = await Exam.find({ allowedStudents: req.user.id, isActive: true, isPublic: { $ne: true } })
-                .select("title description duration passingScore totalMarks batchIds createdAt isPublic")
+                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
                 .lean();
         }
 
         // Fetch all active public exams
         const publicExams = await Exam.find({ isPublic: true, isActive: true })
-            .select("title description duration passingScore totalMarks batchIds createdAt isPublic")
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
             .lean();
+
+        // Fetch exams linked to event if eventId parameter is passed
+        let eventExams = [];
+        if (eventId && mongoose.Types.ObjectId.isValid(eventId)) {
+            eventExams = await Exam.find({ eventId, isActive: true })
+                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
+                .lean();
+        }
 
         // Merge and deduplicate by _id
         const seenIds = new Set(enrollmentExams.map(e => e._id.toString()));
         const mergedExams = [...enrollmentExams];
-        for (const exam of publicExams) {
+        for (const exam of [...publicExams, ...eventExams]) {
             if (!seenIds.has(exam._id.toString())) {
                 mergedExams.push(exam);
+                seenIds.add(exam._id.toString());
             }
         }
 
@@ -485,7 +510,7 @@ router.get("/available", isAuthenticated, async (req, res) => {
             const batch = studentBatches.find(b => (exam.batchIds || []).map(id => id.toString()).includes(b._id.toString()));
             return {
                 ...exam,
-                batchName: exam.isPublic ? "Public Test" : (batch ? batch.name : "Multiple/Unknown Batches"),
+                batchName: exam.isPublic ? "Public Test" : (exam.eventId ? "Event Exam" : (batch ? batch.name : "Multiple/Unknown Batches")),
                 isAttempted: attemptedExamIds.has(exam._id.toString())
             };
         });
@@ -496,6 +521,7 @@ router.get("/available", isAuthenticated, async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to fetch exams" });
     }
 });
+
 
 
 // 9. Get My Results (Student)

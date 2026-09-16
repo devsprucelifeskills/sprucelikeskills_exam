@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import { API_URL } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 
-export default function AvailableExams() {
+function AvailableExamsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventId = searchParams.get("eventId");
+
   const [loading, setLoading] = useState(true);
   const [exams, setExams] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
@@ -20,7 +23,11 @@ export default function AvailableExams() {
         const userRes = await axios.get(`${API_URL}/api/auth/me`, { withCredentials: true });
         if (userRes.data.success) {
           setUser(userRes.data.user);
-          const examsRes = await axios.get(`${API_URL}/api/exam/available`, { withCredentials: true });
+          // Pass eventId query param if available (from SSO redirect)
+          const url = eventId
+            ? `${API_URL}/api/exam/available?eventId=${eventId}`
+            : `${API_URL}/api/exam/available`;
+          const examsRes = await axios.get(url, { withCredentials: true });
           if (examsRes.data.success) {
             setExams(examsRes.data.exams);
           }
@@ -35,7 +42,7 @@ export default function AvailableExams() {
       }
     };
     init();
-  }, [router]);
+  }, [router, eventId]);
 
   if (loading || !user) {
     return (
@@ -76,6 +83,10 @@ export default function AvailableExams() {
                       {exam.isPublic ? (
                         <span className="px-3 py-1 bg-teal-50 text-teal-600 text-[10px] font-black rounded-full uppercase tracking-wider border border-teal-100 flex items-center gap-1">
                           🌐 Public Test
+                        </span>
+                      ) : exam.eventId ? (
+                        <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-full uppercase tracking-wider border border-violet-100 flex items-center gap-1">
+                          🎫 Event Exam
                         </span>
                       ) : (
                         <span className="px-3 py-1 bg-zinc-50 text-zinc-500 text-[10px] font-black rounded-full uppercase tracking-wider border border-zinc-100 truncate max-w-[150px]">
@@ -131,4 +142,16 @@ export default function AvailableExams() {
   );
 }
 
-
+export default function AvailableExams() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
+      }
+    >
+      <AvailableExamsContent />
+    </Suspense>
+  );
+}

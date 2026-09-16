@@ -12,6 +12,11 @@ interface Course {
   title: string;
 }
 
+interface EventItem {
+  _id: string;
+  title: string;
+}
+
 interface Batch {
   _id: string;
   name: string;
@@ -30,6 +35,7 @@ export default function CreateExam() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
   const [batches, setBatches] = useState<Batch[]>([]);
   const [user, setUser] = useState<any>(null);
 
@@ -41,6 +47,7 @@ export default function CreateExam() {
   const [passingScore, setPassingScore] = useState<number>(40);
   const [totalMarks, setTotalMarks] = useState<number>(100);
   const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState("");
   const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const [allStudents, setAllStudents] = useState<{ _id: string; name: string; email: string }[]>([]);
   const [allowedStudents, setAllowedStudents] = useState<string[]>([]);
@@ -53,15 +60,23 @@ export default function CreateExam() {
   const [enableAntiCheating, setEnableAntiCheating] = useState(false);
 
   useEffect(() => {
-    // Check auth and fetch courses
+    // Check auth, fetch courses and events
     const init = async () => {
       try {
         const userRes = await axios.get(`${API_URL}/api/auth/me`, { withCredentials: true });
         if (userRes.data.success && (userRes.data.user.role === "admin" || userRes.data.user.role === "trainer")) {
           setUser(userRes.data.user);
+          
+          // Fetch courses
           const courseRes = await axios.get(`${API_URL}/api/exam/courses`, { withCredentials: true });
           if (courseRes.data.success) {
             setCourses(courseRes.data.courses);
+          }
+
+          // Fetch events with tests
+          const eventRes = await axios.get(`${API_URL}/api/exam/events`, { withCredentials: true });
+          if (eventRes.data.success) {
+            setEvents(eventRes.data.events);
           }
         } else {
           router.push("/dashboard");
@@ -73,6 +88,7 @@ export default function CreateExam() {
     };
     init();
   }, [router]);
+
 
   useEffect(() => {
     // Fetch batches when course changes
@@ -264,6 +280,7 @@ export default function CreateExam() {
         title,
         description,
         duration,
+        eventId: selectedEvent || null,
         courseId: selectedCourse,
         batchIds: selectedBatches,
         allowedStudents,
@@ -299,7 +316,7 @@ export default function CreateExam() {
         <main className="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full">
           <header className="mb-8">
             <h1 className="text-3xl font-extrabold text-zinc-900 ">Create New Exam</h1>
-            <p className="text-zinc-500  mt-2">Design an MCQ assessment and assign it to a batch.</p>
+            <p className="text-zinc-500  mt-2">Design an MCQ assessment and assign it to a batch or event.</p>
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -307,6 +324,26 @@ export default function CreateExam() {
             <div className="bg-white  rounded-3xl p-8 shadow-sm border border-zinc-100 ">
               <h2 className="text-xl font-bold mb-6 text-zinc-900 ">1. Assignment</h2>
               
+              {/* Event Link Dropdown */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Link to Main Platform Event (Optional)
+                </label>
+                <select
+                  value={selectedEvent}
+                  onChange={e => setSelectedEvent(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                  <option value="">None (Independent Exam)</option>
+                  {events.map(ev => (
+                    <option key={ev._id} value={ev._id}>{ev.title}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-zinc-500 mt-1">
+                  Linking to an event allows students taking that event test on the main platform to auto-navigate here.
+                </p>
+              </div>
+
               {/* Public Test Toggle */}
               <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
                 <div>

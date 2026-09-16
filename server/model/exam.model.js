@@ -33,6 +33,11 @@ const examSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        eventId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Event',
+            default: null
+        },
         courseId: {
             type: mongoose.Schema.Types.ObjectId,
             // Not required for public exams
