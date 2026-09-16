@@ -609,8 +609,9 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         const isCreator = exam.createdBy && exam.createdBy.toString() === req.user.id;
         const isAllowedStudent = exam.allowedStudents && exam.allowedStudents.map(id => id.toString()).includes(req.user.id);
         const isPublicExam = !!exam.isPublic;
+        const isEventExam = !!exam.eventId;
 
-        if (!isAdminOrTrainer && !isCreator && !isAllowedStudent && !isPublicExam) {
+        if (!isAdminOrTrainer && !isCreator && !isAllowedStudent && !isPublicExam && !isEventExam) {
             return res.status(403).json({ success: false, message: "You are not authorized to take this exam" });
         }
 

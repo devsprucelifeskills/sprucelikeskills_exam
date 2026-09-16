@@ -234,7 +234,16 @@ router.post("/sso-login", async (req, res) => {
         }
 
         if (!dbUser) {
-            return res.status(404).json({ success: false, message: "User account not found in shared database" });
+            console.log(`[SSO] Auto-creating user record for ${mainUser.email} (${userId || "no-id"})`);
+            const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+            dbUser = await User.create({
+                ...(userId ? { _id: userId } : {}),
+                name: mainUser.name || mainUser.email.split("@")[0] || "Student User",
+                email: mainUser.email.toLowerCase(),
+                password: randomPassword,
+                role: mainUser.role || "user",
+                contact: mainUser.contact || ""
+            });
         }
 
         // Generate SpruceExam JWT
