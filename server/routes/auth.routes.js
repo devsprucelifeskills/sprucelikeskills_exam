@@ -167,39 +167,49 @@ router.post("/sso-login", async (req, res) => {
         }
 
         // Call Main Backend ticket verification endpoint
-        const mainBackendUrl = process.env.MAIN_BACKEND_URL || "http://localhost:5000";
+        const configuredUrl = process.env.MAIN_BACKEND_URL || "http://localhost:5000";
         const ssoSecret = process.env.EXAM_PLATFORM_SSO_SECRET || "spruce_exam_sso_secret_key_987654321_secure";
 
-        let verifyRes;
-        try {
-            verifyRes = await axios.post(
-                `${mainBackendUrl}/api/v6/events/sso/verify-ticket`,
-                { ticket },
-                {
-                    headers: {
-                        "x-sso-secret": ssoSecret
-                    },
-                    timeout: 5000
-                }
-            );
-        } catch (initialErr) {
-            // Fallback attempt: if localhost failed (e.g. Node 18+ IPv6 ::1 issue), try 127.0.0.1
-            if (mainBackendUrl.includes("localhost") && (initialErr.code === "ECONNREFUSED" || initialErr.code === "ENOTFOUND")) {
-                const ipv4Url = mainBackendUrl.replace("localhost", "127.0.0.1");
-                console.log(`[SSO] localhost connection failed, retrying with ${ipv4Url}...`);
+        // Candidate URLs to try in case of connection refused (port differences, IPv4/v6, or domain variations)
+        const candidateUrls = Array.from(new Set([
+            configuredUrl,
+            configuredUrl.replace("localhost", "127.0.0.1"),
+            "http://localhost:5000",
+            "http://127.0.0.1:5000",
+            "http://localhost:8000",
+            "http://127.0.0.1:8000",
+            "http://localhost:5001",
+            "http://127.0.0.1:5001",
+            "https://spruceacademia.com",
+            "https://api.spruceacademia.com"
+        ]));
+
+        let verifyRes = null;
+        let lastError = null;
+
+        for (const targetUrl of candidateUrls) {
+            try {
                 verifyRes = await axios.post(
-                    `${ipv4Url}/api/v6/events/sso/verify-ticket`,
+                    `${targetUrl}/api/v6/events/sso/verify-ticket`,
                     { ticket },
                     {
-                        headers: {
-                            "x-sso-secret": ssoSecret
-                        },
+                        headers: { "x-sso-secret": ssoSecret },
                         timeout: 5000
                     }
                 );
-            } else {
-                throw initialErr;
+                console.log(`[SSO] Ticket successfully verified via ${targetUrl}`);
+                break;
+            } catch (err) {
+                lastError = err;
+                // If it's not a connection error (e.g. 400 Bad Request, 401 Unauthorized), stop retrying other ports
+                if (err.response) {
+                    break;
+                }
             }
+        }
+
+        if (!verifyRes) {
+            throw lastError || new Error("Failed to reach main backend server");
         }
 
         if (!verifyRes.data || !verifyRes.data.success) {
