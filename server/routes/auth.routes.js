@@ -170,15 +170,37 @@ router.post("/sso-login", async (req, res) => {
         const mainBackendUrl = process.env.MAIN_BACKEND_URL || "http://localhost:5000";
         const ssoSecret = process.env.EXAM_PLATFORM_SSO_SECRET || "spruce_exam_sso_secret_key_987654321_secure";
 
-        const verifyRes = await axios.post(
-            `${mainBackendUrl}/api/v6/events/sso/verify-ticket`,
-            { ticket },
-            {
-                headers: {
-                    "x-sso-secret": ssoSecret
+        let verifyRes;
+        try {
+            verifyRes = await axios.post(
+                `${mainBackendUrl}/api/v6/events/sso/verify-ticket`,
+                { ticket },
+                {
+                    headers: {
+                        "x-sso-secret": ssoSecret
+                    },
+                    timeout: 5000
                 }
+            );
+        } catch (initialErr) {
+            // Fallback attempt: if localhost failed (e.g. Node 18+ IPv6 ::1 issue), try 127.0.0.1
+            if (mainBackendUrl.includes("localhost") && (initialErr.code === "ECONNREFUSED" || initialErr.code === "ENOTFOUND")) {
+                const ipv4Url = mainBackendUrl.replace("localhost", "127.0.0.1");
+                console.log(`[SSO] localhost connection failed, retrying with ${ipv4Url}...`);
+                verifyRes = await axios.post(
+                    `${ipv4Url}/api/v6/events/sso/verify-ticket`,
+                    { ticket },
+                    {
+                        headers: {
+                            "x-sso-secret": ssoSecret
+                        },
+                        timeout: 5000
+                    }
+                );
+            } else {
+                throw initialErr;
             }
-        );
+        }
 
         if (!verifyRes.data || !verifyRes.data.success) {
             return res.status(401).json({ success: false, message: verifyRes.data?.message || "Invalid or expired SSO ticket" });
@@ -202,7 +224,7 @@ router.post("/sso-login", async (req, res) => {
         }
 
         if (!dbUser) {
-            return res.status(404).json({ success: false, message: "User account not found in database" });
+            return res.status(404).json({ success: false, message: "User account not found in shared database" });
         }
 
         // Generate SpruceExam JWT
@@ -232,7 +254,13 @@ router.post("/sso-login", async (req, res) => {
         });
     } catch (err) {
         console.error("SSO Login Error:", err?.response?.data || err.message);
-        const errorMessage = err?.response?.data?.message || "Failed to verify SSO ticket";
+        const errorMessage =
+            err?.response?.data?.message ||
+            err?.response?.data?.error ||
+            (err.code === "ECONNREFUSED" ? "Main server backend is unreachable (Connection refused)" : null) ||
+            err.message ||
+            "Failed to verify SSO ticket";
+
         return res.status(401).json({ success: false, message: errorMessage });
     }
 });
