@@ -191,10 +191,11 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields or questions" });
         }
 
-        // For non-public exams, course/batch/students are required
-        if (!isPublic) {
+        // Event-gated exam: no course/batch/student required — access is enforced via SSO ticket
+        // Non-public + no event: course, batch and at least one student are required
+        if (!isPublic && !eventId) {
             if (!courseId || !batchIds || batchIds.length === 0 || !allowedStudents || allowedStudents.length === 0) {
-                return res.status(400).json({ success: false, message: "Missing required fields or questions" });
+                return res.status(400).json({ success: false, message: "Please select a course, at least one batch, and at least one student." });
             }
         }
 
@@ -208,9 +209,10 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
             startTime: start,
             endTime: end,
             eventId: eventId || null,
-            courseId: isPublic ? undefined : courseId,
-            batchIds: isPublic ? [] : batchIds,
-            allowedStudents: isPublic ? [] : allowedStudents,
+            // Event-gated exams don't need course/batch/student — SSO handles access control
+            courseId: (isPublic || eventId) ? undefined : courseId,
+            batchIds: (isPublic || eventId) ? [] : batchIds,
+            allowedStudents: (isPublic || eventId) ? [] : allowedStudents,
             passingScore,
             totalMarks,
             questions,

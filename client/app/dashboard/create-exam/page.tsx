@@ -255,7 +255,8 @@ export default function CreateExam() {
       return;
     }
 
-    if (!isPublic) {
+    // Only require course/batch/students if no event is linked and exam is not public
+    if (!isPublic && !selectedEvent) {
       if (!selectedCourse || selectedBatches.length === 0) {
         alert("Please fill all basic details, select at least one batch, and provide a start time.");
         setLoading(false);
@@ -327,11 +328,22 @@ export default function CreateExam() {
               {/* Event Link Dropdown */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Link to Main Platform Event (Optional)
+                  Link to Main Platform Event <span className="text-zinc-400 font-normal">(Optional)</span>
                 </label>
                 <select
                   value={selectedEvent}
-                  onChange={e => setSelectedEvent(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setSelectedEvent(val);
+                    // When event is selected, clear course/batch/students — they're not needed
+                    if (val) {
+                      setSelectedCourse("");
+                      setSelectedBatches([]);
+                      setAllStudents([]);
+                      setAllowedStudents([]);
+                      setIsPublic(false);
+                    }
+                  }}
                   className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 >
                   <option value="">None (Independent Exam)</option>
@@ -339,45 +351,57 @@ export default function CreateExam() {
                     <option key={ev._id} value={ev._id}>{ev.title}</option>
                   ))}
                 </select>
-                <p className="text-xs text-zinc-500 mt-1">
-                  Linking to an event allows students taking that event test on the main platform to auto-navigate here.
-                </p>
-              </div>
-
-              {/* Public Test Toggle */}
-              <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
-                  <p className="text-xs text-zinc-500 mt-1 max-w-sm">
-                    Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span>, even if they are not enrolled in any course or batch.
+                {selectedEvent ? (
+                  <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-200 rounded-xl">
+                    <span className="text-violet-500 text-sm">🎫</span>
+                    <p className="text-xs text-violet-700 font-semibold">
+                      Event-gated exam — only students enrolled in this event can access it via SSO.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Linking to an event allows enrolled students to auto-login from the main platform.
                   </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(prev => !prev)}
-                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    isPublic ? 'bg-blue-600' : 'bg-zinc-300'
-                  }`}
-                  aria-pressed={isPublic}
-                  aria-label="Toggle public test"
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
-                      isPublic ? 'translate-x-6' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
+                )}
               </div>
 
-              {!isPublic && (
+              {/* Public Test Toggle — hidden when event is selected */}
+              {!selectedEvent && (
+                <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
+                    <p className="text-xs text-zinc-500 mt-1 max-w-sm">
+                      Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span>, even if they are not enrolled in any course or batch.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsPublic(prev => !prev)}
+                    className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      isPublic ? 'bg-blue-600' : 'bg-zinc-300'
+                    }`}
+                    aria-pressed={isPublic}
+                    aria-label="Toggle public test"
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                        isPublic ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              )}
+
+              {/* Course / Batch / Student selector — shown only when NO event is linked and not public */}
+              {!selectedEvent && !isPublic && (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-zinc-700  mb-2">Course</label>
-                      <select 
-                        value={selectedCourse} 
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">Course</label>
+                      <select
+                        value={selectedCourse}
                         onChange={e => { setSelectedCourse(e.target.value); setSelectedBatches([]); }}
-                        className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       >
                         <option value="">Select a Course</option>
                         {courses.map(c => (
@@ -386,27 +410,27 @@ export default function CreateExam() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-zinc-700  mb-2">Select Batches</label>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">Select Batches</label>
                       {!selectedCourse ? (
-                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50 rounded-xl border border-zinc-200">
                           Select a course first to view batches.
                         </div>
                       ) : batches.length === 0 ? (
-                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50 rounded-xl border border-zinc-200">
                           No batches found for this course.
                         </div>
                       ) : (
-                        <div className="space-y-2 max-h-48 overflow-y-auto p-2 border border-zinc-200  rounded-xl bg-zinc-50 ">
+                        <div className="space-y-2 max-h-48 overflow-y-auto p-2 border border-zinc-200 rounded-xl bg-zinc-50">
                           {batches.map(b => (
-                            <label key={b._id} className="flex items-center gap-3 p-2 hover:bg-white  rounded-lg cursor-pointer transition-colors">
-                              <input 
+                            <label key={b._id} className="flex items-center gap-3 p-2 hover:bg-white rounded-lg cursor-pointer transition-colors">
+                              <input
                                 type="checkbox"
                                 checked={selectedBatches.includes(b._id)}
                                 onChange={() => toggleBatch(b._id)}
                                 className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                               />
-                              <span className="text-zinc-900  font-medium">{b.name}</span>
-                              <span className="ml-auto text-xs text-zinc-500 bg-zinc-200  px-2 py-1 rounded-full">
+                              <span className="text-zinc-900 font-medium">{b.name}</span>
+                              <span className="ml-auto text-xs text-zinc-500 bg-zinc-200 px-2 py-1 rounded-full">
                                 {b.students?.length || 0} students
                               </span>
                             </label>
@@ -418,31 +442,31 @@ export default function CreateExam() {
 
                   {/* Targeted Students List */}
                   {allStudents.length > 0 && (
-                    <div className="mt-8 border-t border-zinc-200  pt-6">
+                    <div className="mt-8 border-t border-zinc-200 pt-6">
                       <div className="flex justify-between items-center mb-4">
-                        <label className="block text-sm font-medium text-zinc-700 ">
+                        <label className="block text-sm font-medium text-zinc-700">
                           Targeted Students ({allowedStudents.length}/{allStudents.length})
                         </label>
-                        <button 
+                        <button
                           type="button"
                           onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
-                          className="text-sm text-blue-600  font-semibold hover:underline"
+                          className="text-sm text-blue-600 font-semibold hover:underline"
                         >
                           {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
                         </button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50  rounded-xl border border-zinc-200 ">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50 rounded-xl border border-zinc-200">
                         {allStudents.map(student => (
-                          <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 ' : 'bg-white border-zinc-200   opacity-60 hover:opacity-100'}`}>
-                            <input 
+                          <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200' : 'bg-white border-zinc-200 opacity-60 hover:opacity-100'}`}>
+                            <input
                               type="checkbox"
                               checked={allowedStudents.includes(student._id)}
                               onChange={() => toggleStudent(student._id)}
                               className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
                             />
                             <div className="overflow-hidden">
-                              <p className="text-sm font-bold text-zinc-900  truncate">{student.name}</p>
-                              <p className="text-xs text-zinc-500  truncate">{student.email}</p>
+                              <p className="text-sm font-bold text-zinc-900 truncate">{student.name}</p>
+                              <p className="text-xs text-zinc-500 truncate">{student.email}</p>
                             </div>
                           </label>
                         ))}
@@ -451,6 +475,30 @@ export default function CreateExam() {
                     </div>
                   )}
                 </>
+              )}
+
+              {/* Locked state — shown when event is selected */}
+              {selectedEvent && (
+                <div className="relative mt-2 rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/60 overflow-hidden">
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center gap-2 rounded-2xl">
+                    <span className="text-2xl">🔒</span>
+                    <p className="text-sm font-bold text-zinc-600">Course &amp; Batch selection locked</p>
+                    <p className="text-xs text-zinc-400 text-center max-w-xs">
+                      This exam is event-gated. Only students enrolled in the selected event can access it via SSO auto-login.
+                    </p>
+                  </div>
+                  {/* Blurred background UI */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 pointer-events-none select-none blur-[1px] opacity-40">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">Course</label>
+                      <div className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white text-zinc-400">Locked — Event selected</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">Select Batches</label>
+                      <div className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white text-zinc-400">Locked — Event selected</div>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
 
