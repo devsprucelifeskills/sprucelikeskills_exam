@@ -23,6 +23,17 @@ app.use(cors({
     credentials: true   // required for cookies (httpOnly auth token)
 }));
 
+// Request Logger Middleware (logs API hits to console / Vercel logs)
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+        const duration = Date.now() - start;
+        console.log(`[API LOG] ${new Date().toISOString()} | ${req.method} ${req.originalUrl} | Status: ${res.statusCode} | ${duration}ms`);
+    });
+    next();
+});
+
+
 // MongoDB Connections
 import { authConnection, examConnection } from "./config/db.js";
 
@@ -77,9 +88,6 @@ app.get("/ping", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
-export default app;
-
 
 // import fs from "fs/promises";
 
