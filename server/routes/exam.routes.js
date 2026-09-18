@@ -2,6 +2,7 @@ import express from "express";
 import { Course, Batch, Event } from "../model/authDbModels.js";
 import Exam from "../model/exam.model.js";
 import ExamResult from "../model/examResult.model.js";
+import User from "../model/user.model.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 import mongoose from "mongoose";
 
@@ -147,11 +148,48 @@ router.get("/courses", isAuthenticated, isManager, async (req, res) => {
     }
 });
 
-// 1b. Fetch Events (hasTest: true) for dropdown
+// 1b. Fetch Events (hasTest: true) for dropdown — includes assigned exam info
 router.get("/events", isAuthenticated, isManager, async (req, res) => {
     try {
         const events = await Event.find({ hasTest: true }, "title _id").lean();
-        res.json({ success: true, events });
+
+        // Find exams linked to these events
+        const eventIds = events.map(e => e._id);
+        const linkedExams = await Exam.find({ eventId: { $in: eventIds } })
+            .select("eventId title isActive createdBy")
+            .lean();
+
+        // Fetch creator names from auth DB
+        const creatorIds = [...new Set(linkedExams.map(e => e.createdBy?.toString()).filter(Boolean))];
+        const creators = creatorIds.length > 0
+            ? await User.find({ _id: { $in: creatorIds } }).select("name").lean()
+            : [];
+        const creatorMap = {};
+        for (const c of creators) {
+            creatorMap[c._id.toString()] = c.name;
+        }
+
+        // Map eventId -> linked exam info
+        const examMap = {};
+        for (const exam of linkedExams) {
+            const key = exam.eventId.toString();
+            if (!examMap[key]) {
+                examMap[key] = [];
+            }
+            examMap[key].push({
+                _id: exam._id,
+                title: exam.title,
+                isActive: exam.isActive,
+                createdBy: creatorMap[exam.createdBy?.toString()] || "Unknown"
+            });
+        }
+
+        const eventsWithExams = events.map(ev => ({
+            ...ev,
+            assignedExams: examMap[ev._id.toString()] || []
+        }));
+
+        res.json({ success: true, events: eventsWithExams });
     } catch (err) {
         console.error("Error fetching events:", err);
         res.status(500).json({ success: false, message: "Failed to fetch events" });
@@ -196,6 +234,14 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
         if (!isPublic && !eventId) {
             if (!courseId || !batchIds || batchIds.length === 0 || !allowedStudents || allowedStudents.length === 0) {
                 return res.status(400).json({ success: false, message: "Please select a course, at least one batch, and at least one student." });
+            }
+        }
+
+        // If event is selected, check if it already has an active exam
+        if (eventId) {
+            const existingActiveExam = await Exam.findOne({ eventId, isActive: true });
+            if (existingActiveExam) {
+                return res.status(400).json({ success: false, message: `This event already has an active test assigned: "${existingActiveExam.title}". Please deactivate it first before assigning a new test.` });
             }
         }
 
@@ -454,6 +500,52 @@ router.post("/admin/reconduct/:examId/:studentId", isAuthenticated, isManager, a
     } catch (err) {
         console.error("Error reconducting exam:", err);
         res.status(500).json({ success: false, message: "Failed to reconduct exam" });
+    }
+});
+
+// 8. Toggle Exam Active Status (Deactivate/Activate)
+router.patch("/admin/toggle-active/:id", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(id);
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        exam.isActive = !exam.isActive;
+        await exam.save();
+
+        res.json({ success: true, message: `Exam ${exam.isActive ? "activated" : "deactivated"} successfully`, exam });
+    } catch (err) {
+        console.error("Error toggling exam status:", err);
+        res.status(500).json({ success: false, message: "Failed to toggle exam status" });
+    }
+});
+
+// 9. Delete Exam
+router.delete("/admin/:id", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(id);
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        await ExamResult.deleteMany({ examId: id });
+        await Exam.findByIdAndDelete(id);
+
+        res.json({ success: true, message: "Exam deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting exam:", err);
+        res.status(500).json({ success: false, message: "Failed to delete exam" });
     }
 });
 

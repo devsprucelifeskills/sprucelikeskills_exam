@@ -18,7 +18,7 @@ function AuthForm() {
   const [contact, setContact] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -95,11 +95,11 @@ function AuthForm() {
   return (
     <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 md:p-10 space-y-6 border border-zinc-100 transition-all duration-300 hover:shadow-zinc-200">
       <div className="flex flex-col items-center text-center space-y-2">
-        <Image 
-          src="/spruceLogo.png" 
-          alt="Spruce Logo" 
-          width={180} 
-          height={80} 
+        <Image
+          src="/spruceLogo.png"
+          alt="Spruce Logo"
+          width={180}
+          height={80}
           className="mb-2 h-auto"
           priority
         />
@@ -121,8 +121,8 @@ function AuthForm() {
         {isSignUp && (
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1">Full Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
@@ -134,8 +134,8 @@ function AuthForm() {
 
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">Email</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
@@ -147,8 +147,8 @@ function AuthForm() {
         {isSignUp && (
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1">Contact Number (Optional)</label>
-            <input 
-              type="tel" 
+            <input
+              type="tel"
               value={contact}
               onChange={(e) => setContact(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"

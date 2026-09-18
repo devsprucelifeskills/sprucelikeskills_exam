@@ -14,16 +14,20 @@ export default function ManageExams() {
   const [exams, setExams] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
 
+  const fetchExams = async () => {
+    const examsRes = await axios.get(`${API_URL}/api/exam/admin/all`, { withCredentials: true });
+    if (examsRes.data.success) {
+      setExams(examsRes.data.exams);
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       try {
         const userRes = await axios.get(`${API_URL}/api/auth/me`, { withCredentials: true });
         if (userRes.data.success && (userRes.data.user.role === "admin" || userRes.data.user.role === "trainer")) {
           setUser(userRes.data.user);
-          const examsRes = await axios.get(`${API_URL}/api/exam/admin/all`, { withCredentials: true });
-          if (examsRes.data.success) {
-            setExams(examsRes.data.exams);
-          }
+          await fetchExams();
         } else {
           router.push("/dashboard");
         }
@@ -36,6 +40,33 @@ export default function ManageExams() {
     };
     init();
   }, [router]);
+
+  const handleToggleActive = async (examId: string) => {
+    try {
+      const res = await axios.patch(`${API_URL}/api/exam/admin/toggle-active/${examId}`, {}, { withCredentials: true });
+      if (res.data.success) {
+        setExams((prev) =>
+          prev.map((e) => (e._id === examId ? { ...e, isActive: !e.isActive } : e))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update exam status");
+    }
+  };
+
+  const handleDelete = async (examId: string) => {
+    if (!confirm("Are you sure you want to delete this exam? This action cannot be undone.")) return;
+    try {
+      const res = await axios.delete(`${API_URL}/api/exam/admin/${examId}`, { withCredentials: true });
+      if (res.data.success) {
+        setExams((prev) => prev.filter((e) => e._id !== examId));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete exam");
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -110,6 +141,22 @@ export default function ManageExams() {
                     >
                       RESULTS
                     </Link>
+                    <button
+                      onClick={() => handleToggleActive(exam._id)}
+                      className={`flex-1 sm:flex-none px-4 md:px-6 py-3 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all duration-300 text-center ${
+                        exam.isActive
+                          ? 'bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white'
+                          : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white'
+                      }`}
+                    >
+                      {exam.isActive ? 'DEACTIVATE' : 'ACTIVATE'}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(exam._id)}
+                      className="flex-1 sm:flex-none px-4 md:px-6 py-3 bg-red-50 text-red-600 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black hover:bg-red-500 hover:text-white transition-all duration-300 text-center"
+                    >
+                      DELETE
+                    </button>
                   </div>
                 </div>
               ))}

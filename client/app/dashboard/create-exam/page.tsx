@@ -12,9 +12,17 @@ interface Course {
   title: string;
 }
 
+interface AssignedExam {
+  _id: string;
+  title: string;
+  isActive: boolean;
+  createdBy: string;
+}
+
 interface EventItem {
   _id: string;
   title: string;
+  assignedExams: AssignedExam[];
 }
 
 interface Batch {
@@ -347,9 +355,18 @@ export default function CreateExam() {
                   className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 >
                   <option value="">None (Independent Exam)</option>
-                  {events.map(ev => (
-                    <option key={ev._id} value={ev._id}>{ev.title}</option>
-                  ))}
+                  {events.map(ev => {
+                    const assigned = ev.assignedExams || [];
+                    const hasActiveExam = assigned.some(ex => ex.isActive);
+                    const assignedLabel = assigned.length > 0
+                      ? assigned.map(ex => `${ex.title} (${ex.isActive ? 'Active' : 'Inactive'} - ${ex.createdBy}`).join(', ')
+                      : '';
+                    return (
+                      <option key={ev._id} value={ev._id} disabled={hasActiveExam}>
+                        {ev.title}{assignedLabel ? ` — Assigned: ${assignedLabel}` : ''}{hasActiveExam ? ' (Has Active Test)' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
                 {selectedEvent ? (
                   <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-200 rounded-xl">
@@ -363,6 +380,20 @@ export default function CreateExam() {
                     Linking to an event allows enrolled students to auto-login from the main platform.
                   </p>
                 )}
+                {selectedEvent && (() => {
+                  const selectedEv = events.find(ev => ev._id === selectedEvent);
+                  const assigned = selectedEv?.assignedExams || [];
+                  return assigned.length > 0 ? (
+                    <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                      <p className="text-xs font-bold text-amber-700 mb-1">Previously assigned test(s):</p>
+                      {assigned.map(ex => (
+                        <p key={ex._id} className={`text-xs ${ex.isActive ? 'text-red-600' : 'text-zinc-500'}`}>
+                          {ex.title} — by {ex.createdBy} ({ex.isActive ? 'Active' : 'Inactive'})
+                        </p>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
               </div>
 
               {/* Public Test Toggle — hidden when event is selected */}
