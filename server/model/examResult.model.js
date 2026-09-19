@@ -10,7 +10,7 @@ const examResultSchema = new mongoose.Schema(
         },
         studentId: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true, // References User in auth DB
+            required: true,
         },
         studentName: {
             type: String,
@@ -41,6 +41,10 @@ const examResultSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+examResultSchema.index({ studentId: 1, examId: 1 }, { unique: true });
+examResultSchema.index({ examId: 1, createdAt: -1 });
+examResultSchema.index({ studentId: 1, createdAt: -1 });
 
 const ExamResult = examConnection.model("ExamResult", examResultSchema);
 

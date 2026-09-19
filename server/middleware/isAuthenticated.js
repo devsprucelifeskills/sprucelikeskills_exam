@@ -18,11 +18,9 @@ const isAuthenticated = async (req, res, next) => {
             });
         }
         req.id = decode.id;
-        req.user = decode; // Set req.user for consistency across middlewares
-        console.log("Authentication successful, calling next()");
+        req.user = decode;
         next();
     } catch (error) {
-        console.log(error);
         res.status(401).json({
             message: "Authentication failed",
             success: false

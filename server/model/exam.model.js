@@ -81,6 +81,11 @@ const examSchema = new mongoose.Schema(
     }
 );
 
+examSchema.index({ createdBy: 1 });
+examSchema.index({ eventId: 1 });
+examSchema.index({ isPublic: 1, isActive: 1 });
+examSchema.index({ allowedStudents: 1, isActive: 1 });
+
 const Exam = examConnection.model("Exam", examSchema);
 
 export default Exam;

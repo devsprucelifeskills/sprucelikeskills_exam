@@ -14,8 +14,30 @@ import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 
-// Multer setup for file upload (memory storage)
-const upload = multer({ storage: multer.memoryStorage() });
+// Multer setup for file upload (memory storage with 5MB limit)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.fieldname === "pdf" && file.mimetype !== "application/pdf") {
+            return cb(new Error("Only PDF files are allowed"));
+        }
+        cb(null, true);
+    }
+});
+
+const handleMulterError = (err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+            return res.status(400).json({ success: false, message: "File too large. Maximum size is 5MB." });
+        }
+        return res.status(400).json({ success: false, message: err.message });
+    }
+    if (err) {
+        return res.status(400).json({ success: false, message: err.message });
+    }
+    next();
+};
 
 // Middleware to ensure user is admin or trainer
 const isManager = (req, res, next) => {
@@ -38,7 +60,7 @@ router.get("/admin/all", isAuthenticated, isManager, async (req, res) => {
 });
 
 // 0. Upload Image to Cloudinary
-router.post("/admin/upload-image", isAuthenticated, isManager, upload.single("image"), async (req, res) => {
+router.post("/admin/upload-image", isAuthenticated, isManager, upload.single("image"), handleMulterError, async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No image file uploaded" });
@@ -60,7 +82,7 @@ router.post("/admin/upload-image", isAuthenticated, isManager, upload.single("im
 });
 
 // 0. Parse PDF for Questions
-router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf"), async (req, res) => {
+router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf"), handleMulterError, async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No PDF file uploaded" });
@@ -561,20 +583,17 @@ router.get("/available", isAuthenticated, async (req, res) => {
         const studentBatches = await Batch.find({ students: req.user.id }, "_id courseId name").lean();
         const batchIds = studentBatches.map(b => b._id);
 
-        // Fetch exams the student is directly allowed to take (enrollment-based)
-        let enrollmentExams = [];
-        if (batchIds.length > 0) {
-            enrollmentExams = await Exam.find({ allowedStudents: req.user.id, isActive: true, isPublic: { $ne: true } })
+        const [enrollmentExams, publicExams] = await Promise.all([
+            batchIds.length > 0
+                ? Exam.find({ allowedStudents: req.user.id, isActive: true, isPublic: { $ne: true } })
+                    .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
+                    .lean()
+                : [],
+            Exam.find({ isPublic: true, isActive: true })
                 .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
-                .lean();
-        }
+                .lean()
+        ]);
 
-        // Fetch all active public exams
-        const publicExams = await Exam.find({ isPublic: true, isActive: true })
-            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
-            .lean();
-
-        // Fetch exams linked to event if eventId parameter is passed
         let eventExams = [];
         if (eventId && mongoose.Types.ObjectId.isValid(eventId)) {
             eventExams = await Exam.find({ eventId, isActive: true })
@@ -637,14 +656,9 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
     try {
         const { answers, startedAt } = req.body;
 
-        const exam = await Exam.findById(req.params.id);
+        const exam = await Exam.findById(req.params.id).lean();
         if (!exam || !exam.isActive) {
             return res.status(404).json({ success: false, message: "Exam not found" });
-        }
-
-        const previousAttempt = await ExamResult.findOne({ studentId: req.user.id, examId: exam._id });
-        if (previousAttempt) {
-            return res.status(400).json({ success: false, message: "You have already submitted this exam" });
         }
 
         let score = 0;
@@ -665,16 +679,23 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
         score = Math.round(score * 100) / 100;
         const isPassed = score >= exam.passingScore;
 
-        await ExamResult.create({
-            examId: exam._id,
-            studentId: req.user.id,
-            studentName: req.user.name,
-            studentEmail: req.user.email,
-            score,
-            isPassed,
-            startedAt: startedAt ? new Date(startedAt) : null,
-            answers: processedAnswers
-        });
+        try {
+            await ExamResult.create({
+                examId: exam._id,
+                studentId: req.user.id,
+                studentName: req.user.name,
+                studentEmail: req.user.email,
+                score,
+                isPassed,
+                startedAt: startedAt ? new Date(startedAt) : null,
+                answers: processedAnswers
+            });
+        } catch (createErr) {
+            if (createErr.code === 11000) {
+                return res.status(400).json({ success: false, message: "You have already submitted this exam" });
+            }
+            throw createErr;
+        }
 
         res.json({ success: true, message: "Exam submitted successfully", result: { score, isPassed, totalMarks: exam.totalMarks } });
     } catch (err) {
