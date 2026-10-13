@@ -156,11 +156,12 @@ router.post("/logout", (req, res) => {
 });
 
 // SSO Login Endpoint
-// Single-Backend verifySsoTicket returns:
-//   { success: true, user: { _id, name, email, contact }, eventId, eventTitle }
+// Handles both Event SSO (ticket prefix: sso_) and Mock Exam SSO (ticket prefix: mock_sso_)
+// Event SSO response:    { success, user, eventId, eventTitle }
+// Mock Exam SSO response:{ success, user, mockExamId, isMockExam: true }
 router.post("/sso-login", async (req, res) => {
     try {
-        const { ticket } = req.body;
+        const { ticket, examId: clientExamId } = req.body;
 
         if (!ticket) {
             return res.status(400).json({ success: false, message: "SSO ticket is required" });
@@ -184,20 +185,28 @@ router.post("/sso-login", async (req, res) => {
             "https://api.spruceacademia.com"
         ]));
 
+        // Detect ticket type by prefix:
+        //   mock_sso_... => Mock Exam SSO (no enrollment check, includes mockExamId in response)
+        //   sso_...      => Event SSO (enrollment-gated, includes eventId in response)
+        const isMockTicket = ticket.startsWith("mock_sso_");
+        const verifyPath = isMockTicket
+            ? "/api/v6/events/mock-sso/verify-ticket"
+            : "/api/v6/events/sso/verify-ticket";
+
         let verifyRes = null;
         let lastError = null;
 
         for (const targetUrl of candidateUrls) {
             try {
                 verifyRes = await axios.post(
-                    `${targetUrl}/api/v6/events/sso/verify-ticket`,
+                    `${targetUrl}${verifyPath}`,
                     { ticket },
                     {
                         headers: { "x-sso-secret": ssoSecret },
                         timeout: 5000
                     }
                 );
-                console.log(`[SSO] Ticket successfully verified via ${targetUrl}`);
+                console.log(`[SSO] ${isMockTicket ? "Mock exam" : "Event"} ticket successfully verified via ${targetUrl}`);
                 break;
             } catch (err) {
                 lastError = err;
@@ -216,8 +225,12 @@ router.post("/sso-login", async (req, res) => {
             return res.status(401).json({ success: false, message: verifyRes.data?.message || "Invalid or expired SSO ticket" });
         }
 
-        // Destructure matching Single-Backend's actual response shape
-        const { user: mainUser, eventId, eventTitle } = verifyRes.data;
+        // Destructure: Event SSO gives eventId/eventTitle; Mock SSO gives mockExamId
+        const { user: mainUser, eventId, eventTitle, examId: serverExamId, mockExamId } = verifyRes.data;
+
+        // Resolve the target exam ID:
+        //   mockExamId (mock SSO) > serverExamId > clientExamId (fallback from URL param)
+        const targetExamId = mockExamId || serverExamId || clientExamId || null;
 
         if (!mainUser) {
             return res.status(401).json({ success: false, message: "Invalid SSO ticket payload" });
@@ -261,7 +274,7 @@ router.post("/sso-login", async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        // Normalize event into { id, title } shape for the frontend
+        // Normalize event into { id, title } shape for the frontend (null for mock exam SSO)
         const event = eventId ? { id: eventId, title: eventTitle || "" } : null;
 
         return res.status(200).json({
@@ -269,7 +282,9 @@ router.post("/sso-login", async (req, res) => {
             message: "SSO Login successful",
             token,
             user: { id: dbUser._id, name: dbUser.name, email: dbUser.email, role: dbUser.role || "user" },
-            event
+            event,
+            examId: targetExamId,
+            isMockExam: !!mockExamId
         });
     } catch (err) {
         console.error("SSO Login Error:", err?.response?.data || err.message);
@@ -298,5 +313,3 @@ router.get("/me", (req, res) => {
 });
 
 export default router;
-
-

@@ -27,9 +27,12 @@ function AvailableExamsContent() {
           const url = eventId
             ? `${API_URL}/api/exam/available?eventId=${eventId}`
             : `${API_URL}/api/exam/available`;
-          const examsRes = await axios.get(url, { withCredentials: true });
           if (examsRes.data.success) {
-            setExams(examsRes.data.exams);
+            // Strictly show only actual exams; filter out any mock tests
+            const actualExamsOnly = (examsRes.data.exams || []).filter(
+              (e: any) => !e.is_mock && !e.isMockExam
+            );
+            setExams(actualExamsOnly);
           }
         } else {
           router.push("/");

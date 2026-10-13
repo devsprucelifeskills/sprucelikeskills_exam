@@ -29,6 +29,23 @@ const examSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        isMockExam: {
+            type: Boolean,
+            default: false,
+        },
+        is_mock: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
+        isInterviewPrep: {
+            type: Boolean,
+            default: false,
+        },
+        questionsPerStudent: {
+            type: Number,
+            default: 0, // 0 = all questions in exam; >0 = random subset per student
+        },
         enableAntiCheating: {
             type: Boolean,
             default: false,

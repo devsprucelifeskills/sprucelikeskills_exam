@@ -13,6 +13,7 @@ export default function ManageExams() {
   const [loading, setLoading] = useState(true);
   const [exams, setExams] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [filterType, setFilterType] = useState<"all" | "actual" | "mock">("all");
 
   useEffect(() => {
     const init = async () => {
@@ -45,6 +46,16 @@ export default function ManageExams() {
     );
   }
 
+  const actualCount = exams.filter(e => !e.is_mock && !e.isMockExam).length;
+  const mockCount = exams.filter(e => e.is_mock || e.isMockExam).length;
+
+  const filteredExams = exams.filter(exam => {
+    const isMock = !!(exam.is_mock || exam.isMockExam);
+    if (filterType === "mock") return isMock;
+    if (filterType === "actual") return !isMock;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col">
       <Navbar user={user} />
@@ -53,7 +64,7 @@ export default function ManageExams() {
         <Sidebar role={user.role} />
         
         <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-6xl mx-auto w-full pb-20">
-          <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+          <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
             <div>
               <h1 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight">Manage Exams</h1>
               <p className="text-zinc-500 mt-2 font-medium text-sm md:text-base">Create, edit and analyze your assessments.</p>
@@ -69,31 +80,92 @@ export default function ManageExams() {
             </Link>
           </header>
 
-          {exams.length === 0 ? (
+          {/* Assessment Filter Tabs */}
+          <div className="flex items-center gap-2 mb-8 p-1.5 bg-zinc-100 rounded-2xl w-fit">
+            <button
+              onClick={() => setFilterType("all")}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                filterType === "all" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              All Exams ({exams.length})
+            </button>
+            <button
+              onClick={() => setFilterType("actual")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                filterType === "actual" ? "bg-white text-blue-600 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              <span>🎯 Actual Exams</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-blue-50 text-blue-600 font-bold">{actualCount}</span>
+            </button>
+            <button
+              onClick={() => setFilterType("mock")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                filterType === "mock" ? "bg-white text-purple-600 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              <span>🧪 Mock Tests (is_mock)</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-purple-50 text-purple-600 font-bold">{mockCount}</span>
+            </button>
+          </div>
+
+          {filteredExams.length === 0 ? (
             <div className="bg-white rounded-[40px] p-20 text-center border border-zinc-100 shadow-xl shadow-zinc-200/50 animate-in zoom-in-95 duration-700">
-              <div className="text-7xl mb-6">✍️</div>
-              <h3 className="text-2xl font-black text-zinc-900 mb-2">No Exams Created</h3>
-              <p className="text-zinc-500 font-medium mb-8 max-w-sm mx-auto">Get started by creating your first assessment for your students.</p>
+              <div className="text-7xl mb-6">{filterType === "mock" ? "🧪" : "✍️"}</div>
+              <h3 className="text-2xl font-black text-zinc-900 mb-2">
+                {filterType === "mock" ? "No Mock Exams Found" : filterType === "actual" ? "No Actual Exams Found" : "No Exams Created"}
+              </h3>
+              <p className="text-zinc-500 font-medium mb-8 max-w-sm mx-auto">
+                {filterType === "mock"
+                  ? "Create your first practice test with is_mock enabled."
+                  : "Get started by creating your first assessment for your students."}
+              </p>
               <Link href="/dashboard/create-exam" className="inline-flex items-center gap-2 text-blue-600 font-black hover:gap-3 transition-all">
-                Create your first exam <span className="text-xl">→</span>
+                Create new exam <span className="text-xl">→</span>
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {exams.map((exam) => (
+              {filteredExams.map((exam) => (
                 <div key={exam._id} className="group bg-white rounded-[24px] md:rounded-[32px] p-6 md:p-8 shadow-sm border border-zinc-100 hover:shadow-xl hover:shadow-zinc-200/50 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
                       <h3 className="text-lg md:text-xl font-black text-zinc-900">{exam.title}</h3>
-                      <span className={`px-3 py-1 text-[8px] md:text-[10px] font-black rounded-full uppercase tracking-widest ${exam.isActive ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-zinc-100 text-zinc-400'}`}>
+
+                      {/* Mock vs Actual Badge */}
+                      {exam.is_mock || exam.isMockExam ? (
+                        <span className="px-2.5 py-0.5 text-[9px] font-black rounded-full uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                          🧪 Mock Test
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 text-[9px] font-black rounded-full uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                          🎯 Actual Exam
+                        </span>
+                      )}
+
+                      {exam.isInterviewPrep && (
+                        <span className="px-2.5 py-0.5 text-[9px] font-black rounded-full uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
+                          💼 Interview Prep
+                        </span>
+                      )}
+
+                      <span className={`px-2.5 py-0.5 text-[9px] font-black rounded-full uppercase tracking-widest ${exam.isActive ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-zinc-100 text-zinc-400'}`}>
                         {exam.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
+
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-x-6 gap-y-2 text-[10px] md:text-xs font-bold text-zinc-400">
                       <div className="flex items-center gap-2"><span className="text-base md:text-lg">📅</span> {new Date(exam.startTime).toLocaleDateString()}</div>
                       <div className="flex items-center gap-2"><span className="text-base md:text-lg">⏱️</span> {exam.duration}m</div>
                       <div className="flex items-center gap-2"><span className="text-base md:text-lg">❓</span> {exam.questions.length} Qs</div>
                       <div className="flex items-center gap-2"><span className="text-base md:text-lg">🎯</span> {exam.totalMarks} Marks</div>
+
+                      {exam.questionsPerStudent > 0 && (
+                        <div className="flex items-center gap-1.5 text-purple-600 font-extrabold">
+                          <span>🎲</span> {exam.questionsPerStudent} Qs/Student sampled
+                        </div>
+                      )}
                     </div>
                   </div>
                   

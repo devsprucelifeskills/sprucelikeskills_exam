@@ -25,10 +25,68 @@ const isManager = (req, res, next) => {
     }
 };
 
-// 0. Fetch All Exams for Admin
+// Deterministic PRNG (Mulberry32) for reproducible question sampling per student
+const getDeterministicRng = (seedStr) => {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < seedStr.length; i++) {
+        h = Math.imul(h ^ seedStr.charCodeAt(i), 0x01000193);
+    }
+    return () => {
+        h = Math.imul(h ^ (h >>> 15), 0x735a2d97);
+        h = Math.imul(h ^ (h >>> 15), 0xcaf649a9);
+        return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+    };
+};
+
+/**
+ * Deterministically samples and shuffles questions for a specific student.
+ * If isMockExam is true and questionsPerStudent is set (> 0 and < pool size),
+ * it returns exactly `questionsPerStudent` questions randomly selected from the pool.
+ * If questionsPerStudent is 0 or >= pool size, all questions are returned shuffled.
+ */
+const getStudentAssignedQuestions = (exam, studentId) => {
+    const totalQuestions = exam.questions.length;
+    const indices = Array.from({ length: totalQuestions }, (_, i) => i);
+    const rng = getDeterministicRng(`${studentId}_${exam._id}`);
+
+    // Fisher-Yates shuffle of indices using student+exam deterministic seed
+    for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    let selectedIndices = indices;
+    if ((exam.isMockExam || exam.is_mock) && exam.questionsPerStudent > 0 && exam.questionsPerStudent < totalQuestions) {
+        selectedIndices = indices.slice(0, exam.questionsPerStudent);
+    }
+
+    return selectedIndices.map(origIdx => {
+        const q = exam.questions[origIdx];
+        return {
+            id: origIdx, // keeps track of the original index in exam.questions for evaluation
+            text: q.text,
+            options: q.options,
+            correctOptionIndex: q.correctOptionIndex,
+            marks: q.marks,
+            image: q.image
+        };
+    });
+};
+
+// 0. Fetch All Exams for Admin (supports filtering by ?type=mock or ?type=actual)
 router.get("/admin/all", isAuthenticated, isManager, async (req, res) => {
     try {
-        const exams = await Exam.find({ createdBy: req.user.id }).sort({ createdAt: -1 });
+        const { type } = req.query;
+        const query = { createdBy: req.user.id };
+
+        if (type === "mock") {
+            query.$or = [{ isMockExam: true }, { is_mock: true }];
+        } else if (type === "actual") {
+            query.isMockExam = { $ne: true };
+            query.is_mock = { $ne: true };
+        }
+
+        const exams = await Exam.find(query).sort({ createdAt: -1 });
         res.json({ success: true, exams });
     } catch (err) {
         console.error("Error fetching all exams:", err);
@@ -183,7 +241,8 @@ router.get("/batches/:courseId", isAuthenticated, isManager, async (req, res) =>
 router.post("/create", isAuthenticated, isManager, async (req, res) => {
     const { 
         title, description, duration, courseId, batchIds, 
-        allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId
+        allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
+        isMockExam, is_mock, isInterviewPrep, questionsPerStudent
     } = req.body;
 
     try {
@@ -191,32 +250,37 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields or questions" });
         }
 
-        // Event-gated exam: no course/batch/student required — access is enforced via SSO ticket
-        // Non-public + no event: course, batch and at least one student are required
-        if (!isPublic && !eventId) {
+        const isMock = !!(is_mock !== undefined ? is_mock : isMockExam);
+
+        // Event-gated exam or Mock Exam: no specific batch/student required
+        // Non-public + non-event + non-mock: course, batch and at least one student are required
+        if (!isPublic && !eventId && !isMock) {
             if (!courseId || !batchIds || batchIds.length === 0 || !allowedStudents || allowedStudents.length === 0) {
                 return res.status(400).json({ success: false, message: "Please select a course, at least one batch, and at least one student." });
             }
         }
 
-        const start = new Date(startTime);
-        const end = new Date(start.getTime() + duration * 60000);
+        const start = startTime ? new Date(startTime) : new Date();
+        const end = new Date(start.getTime() + (duration || 60) * 60000);
 
         const newExam = await Exam.create({
             title,
             description,
-            duration,
+            duration: duration || 60,
             startTime: start,
             endTime: end,
             eventId: eventId || null,
-            // Event-gated exams don't need course/batch/student — SSO handles access control
-            courseId: (isPublic || eventId) ? undefined : courseId,
-            batchIds: (isPublic || eventId) ? [] : batchIds,
-            allowedStudents: (isPublic || eventId) ? [] : allowedStudents,
+            courseId: (isPublic || eventId) && !isMock ? undefined : courseId,
+            batchIds: (isPublic || eventId || isMock) ? (batchIds || []) : batchIds,
+            allowedStudents: (isPublic || eventId || isMock) ? (allowedStudents || []) : allowedStudents,
             passingScore,
             totalMarks,
             questions,
-            isPublic: !!isPublic,
+            isPublic: isMock ? true : !!isPublic,
+            isMockExam: isMock,
+            is_mock: isMock,
+            isInterviewPrep: isMock ? !!isInterviewPrep : false,
+            questionsPerStudent: isMock ? (Math.max(0, Number(questionsPerStudent)) || 0) : 0,
             enableAntiCheating: !!enableAntiCheating,
             createdBy: req.user.id
         });
@@ -239,26 +303,32 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
 
         const { 
             title, description, duration, courseId, batchIds, 
-            allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId
+            allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
+            isMockExam, is_mock, isInterviewPrep, questionsPerStudent
         } = req.body;
 
-        const start = new Date(startTime);
-        const end = new Date(start.getTime() + duration * 60000);
+        const isMock = !!(is_mock !== undefined ? is_mock : isMockExam);
+        const start = startTime ? new Date(startTime) : new Date();
+        const end = new Date(start.getTime() + (duration || 60) * 60000);
 
         const updatedExam = await Exam.findByIdAndUpdate(id, {
             title,
             description,
-            duration,
+            duration: duration || 60,
             startTime: start,
             endTime: end,
             eventId: eventId || null,
-            courseId: isPublic ? undefined : courseId,
-            batchIds: isPublic ? [] : batchIds,
-            allowedStudents: isPublic ? [] : allowedStudents,
+            courseId: (isPublic && !isMock) ? undefined : courseId,
+            batchIds: (isPublic || isMock) ? [] : (batchIds || []),
+            allowedStudents: (isPublic || isMock) ? [] : (allowedStudents || []),
             passingScore,
             totalMarks,
             questions,
-            isPublic: !!isPublic,
+            isPublic: isMock ? true : !!isPublic,
+            isMockExam: isMock,
+            is_mock: isMock,
+            isInterviewPrep: isMock ? !!isInterviewPrep : false,
+            questionsPerStudent: isMock ? (Math.max(0, Number(questionsPerStudent)) || 0) : 0,
             enableAntiCheating: !!enableAntiCheating
         }, { new: true });
 
@@ -461,34 +531,53 @@ router.post("/admin/reconduct/:examId/:studentId", isAuthenticated, isManager, a
 // STUDENT ROUTES
 // ─────────────────────────────────────────────
 
-// 8. Fetch available exams for the logged-in student
+// 8. Fetch available exams for the logged-in student (ACTUAL exams only - mock exams excluded)
 router.get("/available", isAuthenticated, async (req, res) => {
     try {
-        const { eventId } = req.query;
+        const { eventId, courseId } = req.query;
 
         const studentBatches = await Batch.find({ students: req.user.id }, "_id courseId name").lean();
         const batchIds = studentBatches.map(b => b._id);
 
-        // Fetch exams the student is directly allowed to take (enrollment-based)
+        // Fetch actual exams the student is directly allowed to take (enrollment-based, excluding mock tests)
         let enrollmentExams = [];
         if (batchIds.length > 0) {
-            enrollmentExams = await Exam.find({ allowedStudents: req.user.id, isActive: true, isPublic: { $ne: true } })
-                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
-                .lean();
+            enrollmentExams = await Exam.find({ 
+                allowedStudents: req.user.id, 
+                isActive: true, 
+                isPublic: { $ne: true },
+                isMockExam: { $ne: true },
+                is_mock: { $ne: true }
+            })
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+            .lean();
         }
 
-        // Fetch all active public exams
-        const publicExams = await Exam.find({ isPublic: true, isActive: true })
-            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
-            .lean();
+        // Fetch all active public actual exams (excluding mock tests)
+        const publicExams = await Exam.find({ 
+            isPublic: true, 
+            isActive: true,
+            isMockExam: { $ne: true },
+            is_mock: { $ne: true }
+        })
+        .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+        .lean();
 
-        // Fetch exams linked to event if eventId parameter is passed
+        // Fetch actual exams linked to event if eventId parameter is passed (excluding mock tests)
         let eventExams = [];
         if (eventId && mongoose.Types.ObjectId.isValid(eventId)) {
-            eventExams = await Exam.find({ eventId, isActive: true })
-                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId")
-                .lean();
+            eventExams = await Exam.find({ 
+                eventId, 
+                isActive: true,
+                isMockExam: { $ne: true },
+                is_mock: { $ne: true }
+            })
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+            .lean();
         }
+
+        // NOTE: Mock exams (is_mock: true or isMockExam: true) are intentionally NOT merged into available exams.
+        // They are only accessible via course links and SSO practice sessions.
 
         // Merge and deduplicate by _id
         const seenIds = new Set(enrollmentExams.map(e => e._id.toString()));
@@ -500,7 +589,7 @@ router.get("/available", isAuthenticated, async (req, res) => {
             }
         }
 
-        // Get attempt records for all merged exams
+        // Get attempt records for all merged actual exams
         const attemptRecords = await ExamResult.find({
             studentId: req.user.id,
             examId: { $in: mergedExams.map(e => e._id) }
@@ -510,9 +599,18 @@ router.get("/available", isAuthenticated, async (req, res) => {
 
         const examsWithContext = mergedExams.map(exam => {
             const batch = studentBatches.find(b => (exam.batchIds || []).map(id => id.toString()).includes(b._id.toString()));
+            let batchName = "Multiple/Unknown Batches";
+            if (exam.isPublic) {
+                batchName = "Public Test";
+            } else if (exam.eventId) {
+                batchName = "Event Exam";
+            } else if (batch) {
+                batchName = batch.name;
+            }
+
             return {
                 ...exam,
-                batchName: exam.isPublic ? "Public Test" : (exam.eventId ? "Event Exam" : (batch ? batch.name : "Multiple/Unknown Batches")),
+                batchName,
                 isAttempted: attemptedExamIds.has(exam._id.toString())
             };
         });
@@ -540,6 +638,54 @@ router.get("/my-results/all", isAuthenticated, async (req, res) => {
     }
 });
 
+// 9b. Fetch Course Mock Exams / Interview Prep Tests (For Single-Backend & Students)
+router.get("/course/:courseId/mock-exams", async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const query = {
+            isActive: true,
+            $or: [{ isMockExam: true }, { is_mock: true }]
+        };
+
+        if (courseId && courseId !== "all" && isValidObjectId(courseId)) {
+            query.$and = [
+                { $or: [{ isMockExam: true }, { is_mock: true }] },
+                { $or: [{ courseId }, { courseId: null }, { isPublic: true }] }
+            ];
+            delete query.$or;
+        }
+
+        const exams = await Exam.find(query)
+            .select("title description duration passingScore totalMarks questionsPerStudent questions isPublic isMockExam is_mock isInterviewPrep createdAt startTime endTime enableAntiCheating")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const formatted = exams.map(e => ({
+            _id: e._id,
+            title: e.title,
+            description: e.description,
+            duration: e.duration,
+            passingScore: e.passingScore,
+            totalMarks: e.totalMarks,
+            totalQuestionsInPool: e.questions?.length || 0,
+            questionsPerStudent: e.questionsPerStudent > 0 ? e.questionsPerStudent : (e.questions?.length || 0),
+            isInterviewPrep: !!e.isInterviewPrep,
+            isMockExam: true,
+            is_mock: true,
+            isPublic: !!e.isPublic,
+            enableAntiCheating: !!e.enableAntiCheating,
+            startTime: e.startTime,
+            endTime: e.endTime,
+            createdAt: e.createdAt
+        }));
+
+        res.json({ success: true, exams: formatted });
+    } catch (err) {
+        console.error("Error fetching course mock exams:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch mock exams" });
+    }
+});
+
 // 10. Submit Exam
 router.post("/:id/submit", isAuthenticated, async (req, res) => {
     try {
@@ -555,17 +701,21 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
             return res.status(400).json({ success: false, message: "You have already submitted this exam" });
         }
 
+        // Determine student's assigned questions (either sampled subset or full exam)
+        const assignedQuestions = getStudentAssignedQuestions(exam, req.user.id);
+        const totalAssigned = assignedQuestions.length || 1;
+        const marksPerQuestion = exam.totalMarks / totalAssigned;
+
         let score = 0;
-        const marksPerQuestion = exam.totalMarks / exam.questions.length;
         const processedAnswers = [];
 
-        exam.questions.forEach((q, index) => {
-            const studentAnswer = answers.find(a => a.questionIndex === index);
+        assignedQuestions.forEach((q) => {
+            const studentAnswer = answers.find(a => a.questionIndex === q.id);
             if (studentAnswer && studentAnswer.selectedOptionIndex === q.correctOptionIndex) {
                 score += marksPerQuestion;
             }
             processedAnswers.push({
-                questionIndex: index,
+                questionIndex: q.id,
                 selectedOptionIndex: studentAnswer ? studentAnswer.selectedOptionIndex : null
             });
         });
@@ -592,7 +742,6 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
 });
 
 // 11. Fetch specific exam questions — MUST be last (wildcard /:id)
-// 11. Fetch specific exam questions — MUST be last (wildcard /:id)
 router.get("/:id", isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
@@ -610,8 +759,9 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         const isAllowedStudent = exam.allowedStudents && exam.allowedStudents.map(id => id.toString()).includes(req.user.id);
         const isPublicExam = !!exam.isPublic;
         const isEventExam = !!exam.eventId;
+        const isMockExam = !!(exam.isMockExam || exam.is_mock);
 
-        if (!isAdminOrTrainer && !isCreator && !isAllowedStudent && !isPublicExam && !isEventExam) {
+        if (!isAdminOrTrainer && !isCreator && !isAllowedStudent && !isPublicExam && !isEventExam && !isMockExam) {
             return res.status(403).json({ success: false, message: "You are not authorized to take this exam" });
         }
 
@@ -646,26 +796,17 @@ router.get("/:id", isAuthenticated, async (req, res) => {
             });
         }
 
-        const sanitizedQuestions = exam.questions.map((q, index) => ({
-            id: index,
+        // For student: sample deterministic questions based on student ID seed
+        const assignedQuestions = getStudentAssignedQuestions(exam, req.user.id);
+        const marksPerQuestion = exam.totalMarks / (assignedQuestions.length || 1);
+
+        const sanitizedQuestions = assignedQuestions.map((q) => ({
+            id: q.id, // original index in exam.questions for evaluation
             text: q.text,
             options: q.options,
             image: q.image,
-            marks: q.marks
+            marks: Math.round(marksPerQuestion * 10) / 10
         }));
-
-        // Randomize questions based on student ID as seed for consistency
-        const seed = req.user.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const seededRandom = (s) => {
-            const x = Math.sin(s) * 10000;
-            return x - Math.floor(x);
-        };
-
-        const shuffledQuestions = [...sanitizedQuestions];
-        for (let i = shuffledQuestions.length - 1; i > 0; i--) {
-            const j = Math.floor(seededRandom(seed + i) * (i + 1));
-            [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
-        }
 
         res.json({
             success: true,
@@ -678,7 +819,11 @@ router.get("/:id", isAuthenticated, async (req, res) => {
                 startTime: exam.startTime,
                 endTime: exam.endTime,
                 enableAntiCheating: exam.enableAntiCheating,
-                questions: shuffledQuestions
+                isMockExam: !!exam.isMockExam,
+                isInterviewPrep: !!exam.isInterviewPrep,
+                totalQuestionsInPool: exam.questions.length,
+                questionsPerStudent: sanitizedQuestions.length,
+                questions: sanitizedQuestions
             }
         });
     } catch (err) {

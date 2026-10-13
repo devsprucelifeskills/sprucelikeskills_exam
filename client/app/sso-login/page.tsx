@@ -9,6 +9,7 @@ function SSOLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ticket = searchParams.get("ticket");
+  const examIdParam = searchParams.get("examId") || searchParams.get("id");
 
   const [status, setStatus] = useState<"loading" | "error" | "success">("loading");
   const [errorMessage, setErrorMessage] = useState("");
@@ -24,7 +25,7 @@ function SSOLoginContent() {
       try {
         const res = await axios.post(
           `${API_URL}/api/auth/sso-login`,
-          { ticket },
+          { ticket, examId: examIdParam },
           { withCredentials: true }
         );
 
@@ -39,11 +40,14 @@ function SSOLoginContent() {
             localStorage.setItem("token", res.data.token);
           }
 
-          // Determine redirect URL
+          // Determine redirect URL: direct exam session or events list or dashboard
+          const directExamId = res.data.examId || examIdParam;
           const eventId = res.data.event?.id || res.data.event?._id;
-          const targetUrl = eventId
-            ? `/dashboard/exams?eventId=${eventId}`
-            : `/dashboard/exams`;
+          const targetUrl = directExamId
+            ? `/dashboard/exams/${directExamId}`
+            : eventId
+              ? `/dashboard/exams?eventId=${eventId}`
+              : `/dashboard/exams`;
 
           // Small delay for smooth UX transition
           setTimeout(() => {

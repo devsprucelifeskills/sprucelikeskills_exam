@@ -36,6 +36,9 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const [enableAntiCheating, setEnableAntiCheating] = useState(false);
+  const [isMock, setIsMock] = useState(false);
+  const [isInterviewPrep, setIsInterviewPrep] = useState(false);
+  const [questionsPerStudent, setQuestionsPerStudent] = useState<number>(0);
   
   // Data States
   const [courses, setCourses] = useState<any[]>([]);
@@ -77,6 +80,9 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
           setQuestions(e.questions);
           setIsPublic(!!e.isPublic);
           setEnableAntiCheating(!!e.enableAntiCheating);
+          setIsMock(!!(e.is_mock || e.isMockExam));
+          setIsInterviewPrep(!!e.isInterviewPrep);
+          setQuestionsPerStudent(e.questionsPerStudent || 0);
         }
 
         // Fetch Courses
@@ -201,13 +207,19 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
     e.preventDefault();
     setSaving(true);
 
-    if (!title || !startTime) {
-      alert("Please fill in the exam title and start time.");
+    if (!title) {
+      alert("Please fill in the exam title.");
       setSaving(false);
       return;
     }
 
-    if (!isPublic && (!selectedCourse || selectedBatches.length === 0)) {
+    if (!isMock && !startTime) {
+      alert("Please provide an exam start time.");
+      setSaving(false);
+      return;
+    }
+
+    if (!isMock && !isPublic && (!selectedCourse || selectedBatches.length === 0)) {
       alert("Please fill all basic details, select at least one batch, and provide a start time.");
       setSaving(false);
       return;
@@ -218,14 +230,18 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
         title,
         description,
         duration,
-        courseId: selectedCourse,
-        batchIds: selectedBatches,
-        allowedStudents,
+        courseId: selectedCourse || null,
+        batchIds: isMock ? [] : selectedBatches,
+        allowedStudents: isMock ? [] : allowedStudents,
         passingScore,
         totalMarks,
         questions,
-        startTime: new Date(startTime).toISOString(),
-        isPublic,
+        startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
+        isPublic: isMock ? true : isPublic,
+        isMockExam: isMock,
+        is_mock: isMock,
+        isInterviewPrep: isMock ? isInterviewPrep : false,
+        questionsPerStudent: isMock ? questionsPerStudent : 0,
         enableAntiCheating
       }, { withCredentials: true });
 
@@ -267,33 +283,149 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Step 1: Target Audience */}
-            <div className="bg-white  rounded-3xl p-8 shadow-sm border border-zinc-100 ">
-              <h2 className="text-xl font-bold mb-6 text-zinc-900 ">1. Target Audience</h2>
+            {/* Step 1: Target Audience & Classification */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-zinc-100">
+              <h2 className="text-xl font-bold mb-6 text-zinc-900">1. Target Audience & Classification</h2>
 
-              {/* Public Test Toggle */}
-              <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
-                  <p className="text-xs text-zinc-500 mt-1 max-w-sm">
-                    Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span>, even if they are not enrolled in any course or batch.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(prev => !prev)}
-                  className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    isPublic ? 'bg-blue-600' : 'bg-zinc-300'
-                  }`}
-                  aria-pressed={isPublic}
-                  aria-label="Toggle public test"
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
-                      isPublic ? 'translate-x-6' : 'translate-x-0'
+              {/* Assessment Mode Toggle: Actual Exam vs Mock Test */}
+              <div className="mb-6 p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80">
+                <label className="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-3">
+                  Exam Type
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsMock(false)}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      !isMock
+                        ? "bg-blue-50/80 border-blue-500 ring-2 ring-blue-500/20 text-blue-950 font-bold"
+                        : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300"
                     }`}
-                  />
-                </button>
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">🎯</span>
+                      <span className="font-extrabold text-sm">Actual Exam</span>
+                    </div>
+                    <p className="text-xs text-zinc-500 font-normal">
+                      Standard assessment assigned to batches. Visible in students' Available Exams tab.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMock(true);
+                      setSelectedBatches([]);
+                      setAllowedStudents([]);
+                    }}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      isMock
+                        ? "bg-purple-50/80 border-purple-500 ring-2 ring-purple-500/20 text-purple-950 font-bold"
+                        : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">🧪</span>
+                      <span className="font-extrabold text-sm">Mock Exam (is_mock: true)</span>
+                    </div>
+                    <p className="text-xs text-zinc-500 font-normal">
+                      Practice test with status <span className="font-mono text-purple-700 font-semibold">is_mock</span>. Excluded from Available Exams tab.
+                    </p>
+                  </button>
+                </div>
               </div>
+
+              {isMock ? (
+                <div className="space-y-6 mb-6">
+                  <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl flex items-start gap-3">
+                    <span className="text-xl">ℹ️</span>
+                    <div>
+                      <p className="text-sm font-bold text-purple-900">Mock Assessment Mode Active (is_mock)</p>
+                      <p className="text-xs text-purple-700 mt-1 leading-relaxed">
+                        This exam will <strong>NOT</strong> appear in students' Available Exams list. Accessed directly via course mock links and SSO practice sessions.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Associate with Course <span className="text-zinc-400 font-normal">(Optional)</span>
+                    </label>
+                    <select 
+                      value={selectedCourse}
+                      onChange={e => setSelectedCourse(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-purple-500 outline-none"
+                    >
+                      <option value="">General / All Courses</option>
+                      {courses.map(course => (
+                        <option key={course._id} value={course._id}>{course.title}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50">
+                      <label className="block text-xs font-bold text-zinc-800 mb-1">
+                        Questions Sampled Per Student
+                      </label>
+                      <p className="text-[11px] text-zinc-500 mb-2">
+                        Randomly samples this many questions from the pool per student (0 = deliver all questions).
+                      </p>
+                      <input
+                        type="number"
+                        min="0"
+                        value={questionsPerStudent}
+                        onChange={e => setQuestionsPerStudent(Math.max(0, parseInt(e.target.value) || 0))}
+                        className="w-full px-3 py-2 rounded-lg border border-zinc-300 bg-white text-zinc-900 font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50 flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="interviewPrepCheckEdit"
+                        checked={isInterviewPrep}
+                        onChange={e => setIsInterviewPrep(e.target.checked)}
+                        className="w-5 h-5 mt-0.5 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <label htmlFor="interviewPrepCheckEdit" className="cursor-pointer">
+                        <span className="block text-xs font-bold text-zinc-800">Flag as Interview Preparation</span>
+                        <span className="block text-[11px] text-zinc-500 mt-0.5">
+                          Marks this mock test specifically for the Interview Preparation tab on the main platform.
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Public Test Toggle */}
+                  <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
+                      <p className="text-xs text-zinc-500 mt-1 max-w-sm">
+                        Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span> in the Available Exams tab.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPublic(prev => !prev)}
+                      className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        isPublic ? 'bg-blue-600' : 'bg-zinc-300'
+                      }`}
+                      aria-pressed={isPublic}
+                      aria-label="Toggle public test"
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                          isPublic ? 'translate-x-6' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </>
+              )}
 
               {!isPublic && (
                 <>
