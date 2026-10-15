@@ -64,7 +64,7 @@ export const registerUser = async (req, res) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 6);
 
 
         const newUser = await User.create({
@@ -485,7 +485,7 @@ export const resetPassword = async (req, res) => {
         }
 
         // Update User Password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcrypt.hash(newPassword, 6);
         await User.findOneAndUpdate({ email }, { password: hashedPassword });
 
         // Delete OTP record

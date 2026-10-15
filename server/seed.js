@@ -16,10 +16,10 @@ const seedUser = async () => {
 
         if (existingUser) {
             console.log("User already exists. Updating password for local login test.");
-            existingUser.password = await bcrypt.hash(testPassword, 10);
+            existingUser.password = await bcrypt.hash(testPassword, 6);
             await existingUser.save();
         } else {
-            const hashedPassword = await bcrypt.hash(testPassword, 10);
+            const hashedPassword = await bcrypt.hash(testPassword, 6);
             await User.create({
                 name: "Test Admin",
                 email: testEmail,

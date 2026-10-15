@@ -130,7 +130,7 @@ router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf")
         // We look for patterns like "1. Question?" or "Q1. Question?"
         // Then options like "A) Option" or "a. Option"
         // Then answers like "Answer: A" or "Correct: B"
-        
+
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         const questions = [];
         let currentQuestion = null;
@@ -141,7 +141,7 @@ router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf")
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            
+
             const qMatch = line.match(questionRegex);
             if (qMatch) {
                 if (currentQuestion && currentQuestion.text && currentQuestion.options.length >= 2) {
@@ -239,8 +239,8 @@ router.get("/batches/:courseId", isAuthenticated, isManager, async (req, res) =>
 
 // 3. Create a new Exam
 router.post("/create", isAuthenticated, isManager, async (req, res) => {
-    const { 
-        title, description, duration, courseId, batchIds, 
+    const {
+        title, description, duration, courseId, batchIds,
         allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
         isMockExam, is_mock, isInterviewPrep, questionsPerStudent
     } = req.body;
@@ -301,8 +301,8 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Exam ID" });
         }
 
-        const { 
-            title, description, duration, courseId, batchIds, 
+        const {
+            title, description, duration, courseId, batchIds,
             allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
             isMockExam, is_mock, isInterviewPrep, questionsPerStudent
         } = req.body;
@@ -542,38 +542,38 @@ router.get("/available", isAuthenticated, async (req, res) => {
         // Fetch actual exams the student is directly allowed to take (enrollment-based, excluding mock tests)
         let enrollmentExams = [];
         if (batchIds.length > 0) {
-            enrollmentExams = await Exam.find({ 
-                allowedStudents: req.user.id, 
-                isActive: true, 
+            enrollmentExams = await Exam.find({
+                allowedStudents: req.user.id,
+                isActive: true,
                 isPublic: { $ne: true },
                 isMockExam: { $ne: true },
                 is_mock: { $ne: true }
             })
-            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
-            .lean();
+                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+                .lean();
         }
 
         // Fetch all active public actual exams (excluding mock tests)
-        const publicExams = await Exam.find({ 
-            isPublic: true, 
+        const publicExams = await Exam.find({
+            isPublic: true,
             isActive: true,
             isMockExam: { $ne: true },
             is_mock: { $ne: true }
         })
-        .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
-        .lean();
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+            .lean();
 
         // Fetch actual exams linked to event if eventId parameter is passed (excluding mock tests)
         let eventExams = [];
         if (eventId && mongoose.Types.ObjectId.isValid(eventId)) {
-            eventExams = await Exam.find({ 
-                eventId, 
+            eventExams = await Exam.find({
+                eventId,
                 isActive: true,
                 isMockExam: { $ne: true },
                 is_mock: { $ne: true }
             })
-            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
-            .lean();
+                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+                .lean();
         }
 
         // NOTE: Mock exams (is_mock: true or isMockExam: true) are intentionally NOT merged into available exams.
