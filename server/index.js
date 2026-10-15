@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import User from "./model/user.model.js";
 
 dotenv.config();
@@ -35,14 +36,24 @@ passport.use(new GoogleStrategy({
     callbackURL: `${process.env.SERVER_URL || `http://localhost:${process.env.PORT || 9005}`}/api/auth/google/callback`
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        const email = profile.emails[0].value;
+        const email = (profile.emails?.[0]?.value || "").toLowerCase().trim();
+        if (!email) {
+            return done(null, false, { message: "No email associated with this Google account." });
+        }
+
         let user = await User.findOne({ email });
 
         if (!user) {
-            return done(null, false, { message: "Unauthorized. Your email is not registered." });
-        }
-
-        if (!user.googleId) {
+            // Auto-register user with student role if not already in database
+            const randomPassword = await bcrypt.hash(Math.random().toString(36), 6);
+            user = await User.create({
+                name: profile.displayName || email.split("@")[0] || "Student",
+                email,
+                password: randomPassword,
+                role: "user",
+                googleId: profile.id
+            });
+        } else if (!user.googleId) {
             user.googleId = profile.id;
             await user.save();
         }

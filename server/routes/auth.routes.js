@@ -129,7 +129,8 @@ router.get("/google/callback", (req, res, next) => {
 
         res.cookie("token", token, getCookieOptions());
 
-        const redirectUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`;
+        const clientBaseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+        const redirectUrl = `${clientBaseUrl}/auth-callback?token=${encodeURIComponent(token)}`;
         res.redirect(redirectUrl);
     })(req, res, next);
 });
