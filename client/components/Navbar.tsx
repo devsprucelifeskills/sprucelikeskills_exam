@@ -21,9 +21,12 @@ export default function Navbar({ user }: NavbarProps) {
   const handleLogout = async () => {
     try {
       await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
-      router.push("/");
     } catch (err) {
       console.error("Logout failed", err);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/");
     }
   };
 

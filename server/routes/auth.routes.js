@@ -4,12 +4,22 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import axios from "axios";
 import User from "../model/user.model.js";
+import { authLimiter, registerLimiter, ssoLimiter } from "../config/rateLimiter.js";
 
 const router = express.Router();
 
+const BCRYPT_ROUNDS = 6;
+
+const isProduction = process.env.NODE_ENV === "production";
+const getCookieOptions = () => ({
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
 // Local Email/Password Sign Up
-router.post("/register", async (req, res) => {
+router.post("/register", registerLimiter, async (req, res) => {
     try {
         const { name, email, password, contact } = req.body;
 
@@ -30,7 +40,7 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ success: false, message: "An account with this email already exists" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
         const newUser = await User.create({
             name: name.trim(),
@@ -40,24 +50,18 @@ router.post("/register", async (req, res) => {
             contact: contact ? contact.trim() : ""
         });
 
-        // Generate JWT
         const token = jwt.sign(
             { id: newUser._id, role: newUser.role, name: newUser.name, email: newUser.email },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
-        // Send token in cookie
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
+        res.cookie("token", token, getCookieOptions());
 
         return res.status(201).json({
             success: true,
             message: "Account created successfully",
+            token,
             user: { id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role }
         });
     } catch (err) {
@@ -67,7 +71,7 @@ router.post("/register", async (req, res) => {
 });
 
 // Local Email/Password Login
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -85,24 +89,18 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid email or password" });
         }
 
-        // Generate JWT
         const token = jwt.sign(
             { id: user._id, role: user.role, name: user.name, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
-        // Send token in cookie
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
+        res.cookie("token", token, getCookieOptions());
 
         return res.status(200).json({
             success: true,
             message: "Login successful",
+            token,
             user: { id: user._id, name: user.name, email: user.email, role: user.role }
         });
     } catch (err) {
@@ -119,27 +117,18 @@ router.get("/google/callback", (req, res, next) => {
     passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return res.status(500).json({ message: "Internal server error" });
         if (!user) {
-            // Redirect to frontend with error message
             const message = info ? info.message : "Authentication failed";
             return res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/?error=${encodeURIComponent(message)}`);
         }
 
-        // Generate JWT
         const token = jwt.sign(
             { id: user._id, role: user.role, name: user.name, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
-        // Send token in cookie (HttpOnly for security)
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true, // Must be true for SameSite: None
-            sameSite: "none", // Required for cross-site cookies
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
+        res.cookie("token", token, getCookieOptions());
 
-        // Redirect to dashboard
         const redirectUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`;
         res.redirect(redirectUrl);
     })(req, res, next);
@@ -149,8 +138,8 @@ router.get("/google/callback", (req, res, next) => {
 router.post("/logout", (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
-        secure: true,
-        sameSite: "none"
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax"
     });
     res.json({ success: true, message: "Logged out successfully" });
 });
@@ -167,23 +156,15 @@ router.post("/sso-login", async (req, res) => {
             return res.status(400).json({ success: false, message: "SSO ticket is required" });
         }
 
-        // Call Main Backend ticket verification endpoint
         const configuredUrl = process.env.MAIN_BACKEND_URL || "http://localhost:5000";
         const ssoSecret = process.env.EXAM_PLATFORM_SSO_SECRET || "spruce_exam_sso_secret_key_987654321_secure";
 
-        // Candidate URLs to try in case of connection refused (port differences, IPv4/v6, or domain variations)
-        const candidateUrls = Array.from(new Set([
+        const candidateUrls = [
             configuredUrl,
             configuredUrl.replace("localhost", "127.0.0.1"),
-            "http://localhost:5000",
-            "http://127.0.0.1:5000",
-            "http://localhost:8000",
-            "http://127.0.0.1:8000",
-            "http://localhost:5001",
-            "http://127.0.0.1:5001",
             "https://spruceacademia.com",
             "https://api.spruceacademia.com"
-        ]));
+        ];
 
         // Detect ticket type by prefix:
         //   mock_sso_... => Mock Exam SSO (no enrollment check, includes mockExamId in response)
@@ -236,7 +217,6 @@ router.post("/sso-login", async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid SSO ticket payload" });
         }
 
-        // Look up user in shared MongoDB by _id (Single-Backend returns _id) or fallback to email
         let dbUser = null;
         const userId = mainUser._id || mainUser.id;
         if (userId) {
@@ -247,8 +227,7 @@ router.post("/sso-login", async (req, res) => {
         }
 
         if (!dbUser) {
-            console.log(`[SSO] Auto-creating user record for ${mainUser.email} (${userId || "no-id"})`);
-            const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+            const randomPassword = await bcrypt.hash(Math.random().toString(36), BCRYPT_ROUNDS);
             dbUser = await User.create({
                 ...(userId ? { _id: userId } : {}),
                 name: mainUser.name || mainUser.email.split("@")[0] || "Student User",
@@ -259,20 +238,13 @@ router.post("/sso-login", async (req, res) => {
             });
         }
 
-        // Generate SpruceExam JWT
         const token = jwt.sign(
             { id: dbUser._id, role: dbUser.role || "user", name: dbUser.name, email: dbUser.email },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
-        // Send token in HttpOnly cookie
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
+        res.cookie("token", token, getCookieOptions());
 
         // Normalize event into { id, title } shape for the frontend (null for mock exam SSO)
         const event = eventId ? { id: eventId, title: eventTitle || "" } : null;
@@ -301,7 +273,7 @@ router.post("/sso-login", async (req, res) => {
 
 // Verify Current User
 router.get("/me", (req, res) => {
-    const token = req.cookies.token;
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ success: false, message: "No token provided" });
 
     try {

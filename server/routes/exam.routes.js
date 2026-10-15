@@ -2,6 +2,7 @@ import express from "express";
 import { Course, Batch, Event } from "../model/authDbModels.js";
 import Exam from "../model/exam.model.js";
 import ExamResult from "../model/examResult.model.js";
+import User from "../model/user.model.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 import mongoose from "mongoose";
 
@@ -13,8 +14,30 @@ import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 
-// Multer setup for file upload (memory storage)
-const upload = multer({ storage: multer.memoryStorage() });
+// Multer setup for file upload (memory storage with 5MB limit)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.fieldname === "pdf" && file.mimetype !== "application/pdf") {
+            return cb(new Error("Only PDF files are allowed"));
+        }
+        cb(null, true);
+    }
+});
+
+const handleMulterError = (err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+            return res.status(400).json({ success: false, message: "File too large. Maximum size is 5MB." });
+        }
+        return res.status(400).json({ success: false, message: err.message });
+    }
+    if (err) {
+        return res.status(400).json({ success: false, message: err.message });
+    }
+    next();
+};
 
 // Middleware to ensure user is admin or trainer
 const isManager = (req, res, next) => {
@@ -95,7 +118,7 @@ router.get("/admin/all", isAuthenticated, isManager, async (req, res) => {
 });
 
 // 0. Upload Image to Cloudinary
-router.post("/admin/upload-image", isAuthenticated, isManager, upload.single("image"), async (req, res) => {
+router.post("/admin/upload-image", isAuthenticated, isManager, upload.single("image"), handleMulterError, async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No image file uploaded" });
@@ -117,7 +140,7 @@ router.post("/admin/upload-image", isAuthenticated, isManager, upload.single("im
 });
 
 // 0. Parse PDF for Questions
-router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf"), async (req, res) => {
+router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf"), handleMulterError, async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No PDF file uploaded" });
@@ -130,7 +153,7 @@ router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf")
         // We look for patterns like "1. Question?" or "Q1. Question?"
         // Then options like "A) Option" or "a. Option"
         // Then answers like "Answer: A" or "Correct: B"
-
+        
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         const questions = [];
         let currentQuestion = null;
@@ -141,7 +164,7 @@ router.post("/admin/parse-pdf", isAuthenticated, isManager, upload.single("pdf")
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-
+            
             const qMatch = line.match(questionRegex);
             if (qMatch) {
                 if (currentQuestion && currentQuestion.text && currentQuestion.options.length >= 2) {
@@ -205,11 +228,48 @@ router.get("/courses", isAuthenticated, isManager, async (req, res) => {
     }
 });
 
-// 1b. Fetch Events (hasTest: true) for dropdown
+// 1b. Fetch Events (hasTest: true) for dropdown — includes assigned exam info
 router.get("/events", isAuthenticated, isManager, async (req, res) => {
     try {
         const events = await Event.find({ hasTest: true }, "title _id").lean();
-        res.json({ success: true, events });
+
+        // Find exams linked to these events
+        const eventIds = events.map(e => e._id);
+        const linkedExams = await Exam.find({ eventId: { $in: eventIds } })
+            .select("eventId title isActive createdBy")
+            .lean();
+
+        // Fetch creator names from auth DB
+        const creatorIds = [...new Set(linkedExams.map(e => e.createdBy?.toString()).filter(Boolean))];
+        const creators = creatorIds.length > 0
+            ? await User.find({ _id: { $in: creatorIds } }).select("name").lean()
+            : [];
+        const creatorMap = {};
+        for (const c of creators) {
+            creatorMap[c._id.toString()] = c.name;
+        }
+
+        // Map eventId -> linked exam info
+        const examMap = {};
+        for (const exam of linkedExams) {
+            const key = exam.eventId.toString();
+            if (!examMap[key]) {
+                examMap[key] = [];
+            }
+            examMap[key].push({
+                _id: exam._id,
+                title: exam.title,
+                isActive: exam.isActive,
+                createdBy: creatorMap[exam.createdBy?.toString()] || "Unknown"
+            });
+        }
+
+        const eventsWithExams = events.map(ev => ({
+            ...ev,
+            assignedExams: examMap[ev._id.toString()] || []
+        }));
+
+        res.json({ success: true, events: eventsWithExams });
     } catch (err) {
         console.error("Error fetching events:", err);
         res.status(500).json({ success: false, message: "Failed to fetch events" });
@@ -239,8 +299,8 @@ router.get("/batches/:courseId", isAuthenticated, isManager, async (req, res) =>
 
 // 3. Create a new Exam
 router.post("/create", isAuthenticated, isManager, async (req, res) => {
-    const {
-        title, description, duration, courseId, batchIds,
+    const { 
+        title, description, duration, courseId, batchIds, 
         allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
         isMockExam, is_mock, isInterviewPrep, questionsPerStudent
     } = req.body;
@@ -261,7 +321,9 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
         }
 
         const start = startTime ? new Date(startTime) : new Date();
-        const end = new Date(start.getTime() + (duration || 60) * 60000);
+        const end = isMock
+            ? new Date(start.getTime() + 100 * 365 * 24 * 60 * 60 * 1000)
+            : new Date(start.getTime() + (duration || 60) * 60000);
 
         const newExam = await Exam.create({
             title,
@@ -301,15 +363,17 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Exam ID" });
         }
 
-        const {
-            title, description, duration, courseId, batchIds,
+        const { 
+            title, description, duration, courseId, batchIds, 
             allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
             isMockExam, is_mock, isInterviewPrep, questionsPerStudent
         } = req.body;
 
         const isMock = !!(is_mock !== undefined ? is_mock : isMockExam);
         const start = startTime ? new Date(startTime) : new Date();
-        const end = new Date(start.getTime() + (duration || 60) * 60000);
+        const end = isMock
+            ? new Date(start.getTime() + 100 * 365 * 24 * 60 * 60 * 1000)
+            : new Date(start.getTime() + (duration || 60) * 60000);
 
         const updatedExam = await Exam.findByIdAndUpdate(id, {
             title,
@@ -527,6 +591,52 @@ router.post("/admin/reconduct/:examId/:studentId", isAuthenticated, isManager, a
     }
 });
 
+// 8. Toggle Exam Active Status (Deactivate/Activate)
+router.patch("/admin/toggle-active/:id", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(id);
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        exam.isActive = !exam.isActive;
+        await exam.save();
+
+        res.json({ success: true, message: `Exam ${exam.isActive ? "activated" : "deactivated"} successfully`, exam });
+    } catch (err) {
+        console.error("Error toggling exam status:", err);
+        res.status(500).json({ success: false, message: "Failed to toggle exam status" });
+    }
+});
+
+// 9. Delete Exam
+router.delete("/admin/:id", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(id);
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        await ExamResult.deleteMany({ examId: id });
+        await Exam.findByIdAndDelete(id);
+
+        res.json({ success: true, message: "Exam deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting exam:", err);
+        res.status(500).json({ success: false, message: "Failed to delete exam" });
+    }
+});
+
 // ─────────────────────────────────────────────
 // STUDENT ROUTES
 // ─────────────────────────────────────────────
@@ -542,38 +652,38 @@ router.get("/available", isAuthenticated, async (req, res) => {
         // Fetch actual exams the student is directly allowed to take (enrollment-based, excluding mock tests)
         let enrollmentExams = [];
         if (batchIds.length > 0) {
-            enrollmentExams = await Exam.find({
-                allowedStudents: req.user.id,
-                isActive: true,
+            enrollmentExams = await Exam.find({ 
+                allowedStudents: req.user.id, 
+                isActive: true, 
                 isPublic: { $ne: true },
                 isMockExam: { $ne: true },
                 is_mock: { $ne: true }
             })
-                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
-                .lean();
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+            .lean();
         }
 
         // Fetch all active public actual exams (excluding mock tests)
-        const publicExams = await Exam.find({
-            isPublic: true,
+        const publicExams = await Exam.find({ 
+            isPublic: true, 
             isActive: true,
             isMockExam: { $ne: true },
             is_mock: { $ne: true }
         })
-            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
-            .lean();
+        .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+        .lean();
 
         // Fetch actual exams linked to event if eventId parameter is passed (excluding mock tests)
         let eventExams = [];
         if (eventId && mongoose.Types.ObjectId.isValid(eventId)) {
-            eventExams = await Exam.find({
-                eventId,
+            eventExams = await Exam.find({ 
+                eventId, 
                 isActive: true,
                 isMockExam: { $ne: true },
                 is_mock: { $ne: true }
             })
-                .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
-                .lean();
+            .select("title description duration passingScore totalMarks batchIds createdAt isPublic eventId isMockExam is_mock isInterviewPrep questionsPerStudent courseId")
+            .lean();
         }
 
         // NOTE: Mock exams (is_mock: true or isMockExam: true) are intentionally NOT merged into available exams.
@@ -674,8 +784,8 @@ router.get("/course/:courseId/mock-exams", async (req, res) => {
             is_mock: true,
             isPublic: !!e.isPublic,
             enableAntiCheating: !!e.enableAntiCheating,
-            startTime: e.startTime,
-            endTime: e.endTime,
+            startTime: e.startTime || e.createdAt || new Date(0),
+            endTime: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000),
             createdAt: e.createdAt
         }));
 
@@ -691,7 +801,7 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
     try {
         const { answers, startedAt } = req.body;
 
-        const exam = await Exam.findById(req.params.id);
+        const exam = await Exam.findById(req.params.id).lean();
         if (!exam || !exam.isActive) {
             return res.status(404).json({ success: false, message: "Exam not found" });
         }
@@ -723,16 +833,23 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
         score = Math.round(score * 100) / 100;
         const isPassed = score >= exam.passingScore;
 
-        await ExamResult.create({
-            examId: exam._id,
-            studentId: req.user.id,
-            studentName: req.user.name,
-            studentEmail: req.user.email,
-            score,
-            isPassed,
-            startedAt: startedAt ? new Date(startedAt) : null,
-            answers: processedAnswers
-        });
+        try {
+            await ExamResult.create({
+                examId: exam._id,
+                studentId: req.user.id,
+                studentName: req.user.name,
+                studentEmail: req.user.email,
+                score,
+                isPassed,
+                startedAt: startedAt ? new Date(startedAt) : null,
+                answers: processedAnswers
+            });
+        } catch (createErr) {
+            if (createErr.code === 11000) {
+                return res.status(400).json({ success: false, message: "You have already submitted this exam" });
+            }
+            throw createErr;
+        }
 
         res.json({ success: true, message: "Exam submitted successfully", result: { score, isPassed, totalMarks: exam.totalMarks } });
     } catch (err) {
@@ -766,9 +883,9 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         }
 
         const now = new Date();
-        const hasStarted = now >= new Date(exam.startTime);
+        const hasStarted = isMockExam ? true : now >= new Date(exam.startTime);
 
-        if (!hasStarted && !isAdminOrTrainer) {
+        if (!isMockExam && !hasStarted && !isAdminOrTrainer) {
             return res.json({
                 success: true,
                 serverTime: now, // lets the frontend sync its countdown to the server's clock
@@ -789,10 +906,23 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         }
 
         if (isAdminOrTrainer) {
+            const adminQuestions = (exam.questions || []).map((q, idx) => ({
+                id: q.id !== undefined && q.id !== null ? q.id : idx,
+                _id: q._id ? q._id.toString() : String(idx),
+                text: q.text,
+                options: q.options,
+                image: q.image,
+                marks: q.marks || (exam.totalMarks / (exam.questions.length || 1)),
+                correctOptionIndex: q.correctOptionIndex
+            }));
+
             return res.json({
                 success: true,
                 serverTime: now, // lets the frontend sync its countdown to the server's clock
-                exam
+                exam: {
+                    ...exam,
+                    questions: adminQuestions
+                }
             });
         }
 
@@ -800,8 +930,9 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         const assignedQuestions = getStudentAssignedQuestions(exam, req.user.id);
         const marksPerQuestion = exam.totalMarks / (assignedQuestions.length || 1);
 
-        const sanitizedQuestions = assignedQuestions.map((q) => ({
-            id: q.id, // original index in exam.questions for evaluation
+        const sanitizedQuestions = assignedQuestions.map((q, idx) => ({
+            id: q.id !== undefined && q.id !== null ? q.id : idx,
+            _id: q._id ? q._id.toString() : String(idx),
             text: q.text,
             options: q.options,
             image: q.image,
@@ -817,9 +948,10 @@ router.get("/:id", isAuthenticated, async (req, res) => {
                 description: exam.description,
                 duration: exam.duration,
                 startTime: exam.startTime,
-                endTime: exam.endTime,
+                endTime: isMockExam ? new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000) : exam.endTime,
                 enableAntiCheating: exam.enableAntiCheating,
-                isMockExam: !!exam.isMockExam,
+                isMockExam: isMockExam,
+                is_mock: isMockExam,
                 isInterviewPrep: !!exam.isInterviewPrep,
                 totalQuestionsInPool: exam.questions.length,
                 questionsPerStudent: sanitizedQuestions.length,

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 interface Answer {
-  questionIndex: number;
+  questionIndex: number | string;
   selectedOptionIndex: number;
 }
 
@@ -38,7 +38,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [now, setNow] = useState(new Date());
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [reviewIndices, setReviewIndices] = useState<number[]>([]);
+  const [reviewIndices, setReviewIndices] = useState<(number | string)[]>([]);
   const [examStartedAt, setExamStartedAt] = useState<string | null>(null);
 
   // Anti-Cheating States & Refs
@@ -86,12 +86,19 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/exam/${id}`, { withCredentials: true });
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get(`${API_URL}/api/exam/${id}`, { withCredentials: true, headers });
 
         applyServerTimeFromResponse(res);
 
         if (res.data.success) {
-          setExam(res.data.exam);
+          const rawExam = res.data.exam;
+          const normalizedQuestions = (rawExam?.questions || []).map((q: any, idx: number) => ({
+            ...q,
+            id: q.id !== undefined && q.id !== null ? q.id : (q._id ? q._id : idx)
+          }));
+          setExam({ ...rawExam, questions: normalizedQuestions });
 
           // --- HYDRATION: Load saved progress from LocalStorage ---
           const savedAnswers = localStorage.getItem(`exam_progress_${id}`);
@@ -103,14 +110,30 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
           }
           if (savedAnswers) {
             try {
-              setAnswers(JSON.parse(savedAnswers));
+              const parsed = JSON.parse(savedAnswers);
+              if (Array.isArray(parsed)) {
+                // Filter out corrupted answers where questionIndex was null or undefined
+                const cleanAnswers = parsed.filter(
+                  (a: any) => a && a.questionIndex !== undefined && a.questionIndex !== null
+                );
+                setAnswers(cleanAnswers);
+                if (cleanAnswers.length !== parsed.length) {
+                  localStorage.setItem(`exam_progress_${id}`, JSON.stringify(cleanAnswers));
+                }
+              }
             } catch (e) {
               console.error("Failed to parse saved answers", e);
             }
           }
           if (savedReview) {
             try {
-              setReviewIndices(JSON.parse(savedReview));
+              const parsed = JSON.parse(savedReview);
+              if (Array.isArray(parsed)) {
+                const cleanReview = parsed.filter(
+                  (i: any) => i !== undefined && i !== null
+                );
+                setReviewIndices(cleanReview);
+              }
             } catch (e) {
               console.error("Failed to parse saved review indices", e);
             }
@@ -118,11 +141,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
           // ------------------------------------------------------
 
           // Initial phase check (now anchored to server time, not the device clock)
+          const isMock = !!(res.data.exam.isMockExam || res.data.exam.is_mock);
           const startTime = new Date(res.data.exam.startTime).getTime();
           const endTime = new Date(res.data.exam.endTime).getTime();
           const currentTime = getServerNow();
 
-          if (currentTime < startTime) {
+          if (isMock) {
+            setPhase("instructions");
+          } else if (currentTime < startTime) {
             setPhase("waiting");
           } else if (currentTime > endTime) {
             setPhase("ended");
@@ -163,37 +189,61 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
   useEffect(() => {
     if (!exam || result) return;
+    const isMock = !!(exam.isMockExam || exam.is_mock);
+
     const timer = setInterval(() => {
       const currentTime = new Date(getServerNow());
       setNow(currentTime);
 
-      const startTime = new Date(exam.startTime).getTime();
-      const endTime = new Date(exam.endTime).getTime();
-      const nowTime = currentTime.getTime();
+      if (isMock) {
+        if (phase === "exam") {
+          const startRef = examStartedAt || localStorage.getItem(`exam_startedAt_${id}`);
+          if (startRef) {
+            const elapsedSeconds = Math.floor((currentTime.getTime() - new Date(startRef).getTime()) / 1000);
+            const totalSeconds = (exam.duration || 60) * 60;
+            const remaining = totalSeconds - elapsedSeconds;
+            setTimeLeft(Math.max(0, remaining));
 
-      if (nowTime < startTime) {
-        setPhase("waiting");
-      } else if (nowTime >= startTime && nowTime <= endTime) {
-        if (phase === "waiting") {
-          setPhase("instructions");
+            if (remaining <= 0) {
+              clearInterval(timer);
+              submitExam(true);
+            }
+          } else {
+            setTimeLeft((exam.duration || 60) * 60);
+          }
+        } else {
+          setTimeLeft((exam.duration || 60) * 60);
         }
+      } else {
+        const startTime = new Date(exam.startTime).getTime();
+        const endTime = new Date(exam.endTime).getTime();
+        const nowTime = currentTime.getTime();
 
-        const secondsLeft = Math.floor((endTime - nowTime) / 1000);
-        setTimeLeft(secondsLeft);
+        if (nowTime < startTime) {
+          setPhase("waiting");
+        } else if (nowTime >= startTime && nowTime <= endTime) {
+          if (phase === "waiting") {
+            setPhase("instructions");
+          }
 
-        if (secondsLeft <= 0) {
-          clearInterval(timer);
-          submitExam(true);
+          const secondsLeft = Math.floor((endTime - nowTime) / 1000);
+          setTimeLeft(secondsLeft);
+
+          if (secondsLeft <= 0) {
+            clearInterval(timer);
+            submitExam(true);
+          }
+        } else if (nowTime > endTime) {
+          setPhase("ended");
+          if (phase === "exam") submitExam(true);
         }
-      } else if (nowTime > endTime) {
-        setPhase("ended");
-        if (phase === "exam") submitExam(true);
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [exam, result, phase]);
+  }, [exam, result, phase, examStartedAt, id]);
 
-  const handleOptionSelect = (questionIndex: number, optionIndex: number) => {
+  const handleOptionSelect = (questionIndex: number | string, optionIndex: number) => {
+    if (questionIndex === undefined || questionIndex === null) return;
     setAnswers(prev => {
       const existing = prev.findIndex(a => a.questionIndex === questionIndex);
       let updated;
@@ -208,7 +258,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     });
   };
 
-  const toggleReview = (index: number) => {
+  const toggleReview = (index: number | string) => {
+    if (index === undefined || index === null) return;
     setReviewIndices(prev => {
       const updated = prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index];
       localStorage.setItem(`exam_review_${id}`, JSON.stringify(updated));
@@ -325,7 +376,9 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
     setSubmitting(true);
     try {
-      const res = await axios.post(`${API_URL}/api/exam/${id}/submit`, { answers, startedAt: examStartedAt }, { withCredentials: true });
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.post(`${API_URL}/api/exam/${id}/submit`, { answers, startedAt: examStartedAt }, { withCredentials: true, headers });
       if (res.data.success) {
         localStorage.removeItem(`exam_progress_${id}`);
         localStorage.removeItem(`exam_review_${id}`);
@@ -557,10 +610,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
           <div className="max-w-2xl mx-auto">
             {exam?.questions?.map((q: any, qIndex: number) => {
               if (activeQuestion !== qIndex) return null;
-              const studentAnswer = answers.find(a => a.questionIndex === q.id);
-              const isReviewed = reviewIndices.includes(q.id);
+              const questionId = q.id !== undefined && q.id !== null ? q.id : (q._id ? q._id : qIndex);
+              const studentAnswer = answers.find(a => a.questionIndex === questionId);
+              const isReviewed = reviewIndices.includes(questionId);
               return (
-                <div key={q.id} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div key={questionId} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="p-8">
                     <div className="flex items-center justify-between mb-8">
                       <div className="flex items-center gap-4">
@@ -584,7 +638,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                       {q.options.map((option: string, oIndex: number) => {
                         const isSelected = studentAnswer?.selectedOptionIndex === oIndex;
                         return (
-                          <button key={oIndex} onClick={() => handleOptionSelect(q.id, oIndex)} className={`w-full group flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 ${isSelected ? "border-blue-600 bg-blue-50 shadow-md" : "border-slate-100 hover:border-blue-200 hover:bg-slate-50"}`}>
+                          <button key={oIndex} onClick={() => handleOptionSelect(questionId, oIndex)} className={`w-full group flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 ${isSelected ? "border-blue-600 bg-blue-50 shadow-md" : "border-slate-100 hover:border-blue-200 hover:bg-slate-50"}`}>
                             <div className="flex items-center gap-4">
                               <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors ${isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600"}`}>{String.fromCharCode(65 + oIndex)}</span>
                               <span className={`font-bold transition-colors ${isSelected ? "text-blue-900" : "text-slate-600"}`}>{option}</span>
@@ -596,7 +650,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                     </div>
                   </div>
                   <div className="px-8 py-6 bg-slate-50 flex items-center justify-between">
-                    <button onClick={() => toggleReview(q.id)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${isReviewed ? "bg-violet-600 text-white shadow-lg shadow-violet-200" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"}`}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>{isReviewed ? "Unmark Review" : "Mark for Review"}</button>
+                    <button onClick={() => toggleReview(questionId)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${isReviewed ? "bg-violet-600 text-white shadow-lg shadow-violet-200" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"}`}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>{isReviewed ? "Unmark Review" : "Mark for Review"}</button>
                     <div className="flex gap-3">
                       <button onClick={() => setActiveQuestion(prev => Math.max(0, prev - 1))} disabled={activeQuestion === 0} className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-blue-600 hover:border-blue-200 transition-all disabled:opacity-30"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg></button>
                       <button onClick={() => setActiveQuestion(prev => Math.min(totalCount - 1, prev + 1))} disabled={activeQuestion === totalCount - 1} className="flex items-center gap-2 px-8 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition-all shadow-lg shadow-slate-200 disabled:opacity-30">Next Question <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg></button>
@@ -612,8 +666,9 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Question Palette</h3>
             <div className="grid grid-cols-4 gap-2.5">
               {exam?.questions?.map((q: any, idx: number) => {
-                const isAnswered = answers.some(a => a.questionIndex === q.id);
-                const isReviewed = reviewIndices.includes(q.id);
+                const questionId = q.id !== undefined && q.id !== null ? q.id : (q._id ? q._id : idx);
+                const isAnswered = answers.some(a => a.questionIndex === questionId);
+                const isReviewed = reviewIndices.includes(questionId);
                 const isActive = activeQuestion === idx;
                 let bgColor = "bg-white text-slate-400 border-slate-100 hover:border-blue-400 hover:text-blue-600";
                 if (isActive) bgColor = "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 ring-2 ring-blue-100 ring-offset-2";

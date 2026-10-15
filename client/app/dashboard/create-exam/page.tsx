@@ -12,9 +12,17 @@ interface Course {
   title: string;
 }
 
+interface AssignedExam {
+  _id: string;
+  title: string;
+  isActive: boolean;
+  createdBy: string;
+}
+
 interface EventItem {
   _id: string;
   title: string;
+  assignedExams: AssignedExam[];
 }
 
 interface Batch {
@@ -51,7 +59,7 @@ export default function CreateExam() {
   const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const [allStudents, setAllStudents] = useState<{ _id: string; name: string; email: string }[]>([]);
   const [allowedStudents, setAllowedStudents] = useState<string[]>([]);
-
+  
   const [questions, setQuestions] = useState<Question[]>([
     { text: "", options: ["", "", "", ""], correctOptionIndex: 0, marks: 1, image: "" }
   ]);
@@ -69,7 +77,7 @@ export default function CreateExam() {
         const userRes = await axios.get(`${API_URL}/api/auth/me`, { withCredentials: true });
         if (userRes.data.success && (userRes.data.user.role === "admin" || userRes.data.user.role === "trainer")) {
           setUser(userRes.data.user);
-
+          
           // Fetch courses
           const courseRes = await axios.get(`${API_URL}/api/exam/courses`, { withCredentials: true });
           if (courseRes.data.success) {
@@ -132,7 +140,7 @@ export default function CreateExam() {
 
     const studentsList = Array.from(uniqueStudentsMap.values());
     setAllStudents(studentsList);
-
+    
     // Auto-select all by default when batch selection changes
     // Only if allowedStudents is empty (meaning first selection) or we want to force reset
     setAllowedStudents(studentsList.map(s => s._id));
@@ -145,15 +153,15 @@ export default function CreateExam() {
   }, [questions]);
 
   const toggleBatch = (batchId: string) => {
-    setSelectedBatches(prev =>
-      prev.includes(batchId)
+    setSelectedBatches(prev => 
+      prev.includes(batchId) 
         ? prev.filter(id => id !== batchId)
         : [...prev, batchId]
     );
   };
 
   const toggleStudent = (studentId: string) => {
-    setAllowedStudents(prev =>
+    setAllowedStudents(prev => 
       prev.includes(studentId)
         ? prev.filter(id => id !== studentId)
         : [...prev, studentId]
@@ -323,10 +331,10 @@ export default function CreateExam() {
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col">
       <Navbar user={user} />
-
+      
       <div className="flex flex-1 overflow-hidden">
         <Sidebar role={user.role} />
-
+        
         <main className="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full">
           <header className="mb-8">
             <h1 className="text-3xl font-extrabold text-zinc-900 ">Create New Exam</h1>
@@ -349,10 +357,11 @@ export default function CreateExam() {
                     onClick={() => {
                       setIsMock(false);
                     }}
-                    className={`p-4 rounded-xl border text-left transition-all ${!isMock
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      !isMock
                         ? "bg-blue-50/80 border-blue-500 ring-2 ring-blue-500/20 text-blue-950 font-bold"
                         : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300"
-                      }`}
+                    }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">🎯</span>
@@ -371,10 +380,11 @@ export default function CreateExam() {
                       setSelectedBatches([]);
                       setAllowedStudents([]);
                     }}
-                    className={`p-4 rounded-xl border text-left transition-all ${isMock
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      isMock
                         ? "bg-purple-50/80 border-purple-500 ring-2 ring-purple-500/20 text-purple-950 font-bold"
                         : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300"
-                      }`}
+                    }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">🧪</span>
@@ -507,14 +517,16 @@ export default function CreateExam() {
                       <button
                         type="button"
                         onClick={() => setIsPublic(prev => !prev)}
-                        className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isPublic ? 'bg-blue-600' : 'bg-zinc-300'
-                          }`}
+                        className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          isPublic ? 'bg-blue-600' : 'bg-zinc-300'
+                        }`}
                         aria-pressed={isPublic}
                         aria-label="Toggle public test"
                       >
                         <span
-                          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${isPublic ? 'translate-x-6' : 'translate-x-0'
-                            }`}
+                          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                            isPublic ? 'translate-x-6' : 'translate-x-0'
+                          }`}
                         />
                       </button>
                     </div>
@@ -638,8 +650,8 @@ export default function CreateExam() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-zinc-700  mb-2">Exam Title</label>
-                  <input
-                    type="text"
+                  <input 
+                    type="text" 
                     value={title || ""}
                     onChange={e => setTitle(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -649,7 +661,7 @@ export default function CreateExam() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-700  mb-2">Description (Optional)</label>
-                  <textarea
+                  <textarea 
                     value={description || ""}
                     onChange={e => setDescription(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none h-24 resize-none"
@@ -671,22 +683,24 @@ export default function CreateExam() {
                   <button
                     type="button"
                     onClick={() => setEnableAntiCheating(prev => !prev)}
-                    className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${enableAntiCheating ? 'bg-amber-600' : 'bg-zinc-300'
-                      }`}
+                    className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${
+                      enableAntiCheating ? 'bg-amber-600' : 'bg-zinc-300'
+                    }`}
                     aria-pressed={enableAntiCheating}
                     aria-label="Toggle anti-cheating mode"
                   >
                     <span
-                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${enableAntiCheating ? 'translate-x-6' : 'translate-x-0'
-                        }`}
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                        enableAntiCheating ? 'translate-x-6' : 'translate-x-0'
+                      }`}
                     />
                   </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-zinc-700  mb-2">Start Date & Time</label>
-                    <input
-                      type="datetime-local"
+                    <input 
+                      type="datetime-local" 
                       value={startTime || ""}
                       onChange={e => setStartTime(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -695,8 +709,8 @@ export default function CreateExam() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-zinc-700  mb-2">Duration (mins)</label>
-                    <input
-                      type="number"
+                    <input 
+                      type="number" 
                       value={duration || 0}
                       onChange={e => setDuration(Number(e.target.value))}
                       className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -706,8 +720,8 @@ export default function CreateExam() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-zinc-700  mb-2">Total Marks (Auto)</label>
-                    <input
-                      type="number"
+                    <input 
+                      type="number" 
                       value={totalMarks || 0}
                       readOnly
                       className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-100  text-zinc-500  focus:outline-none cursor-not-allowed font-bold"
@@ -722,8 +736,8 @@ export default function CreateExam() {
                         </span>
                       )}
                     </label>
-                    <input
-                      type="number"
+                    <input 
+                      type="number" 
                       value={passingScore || 0}
                       onChange={e => setPassingScore(Number(e.target.value))}
                       min={0}
@@ -758,7 +772,7 @@ export default function CreateExam() {
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                           <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Marks:</label>
-                          <input
+                          <input 
                             type="number"
                             min={1}
                             value={q.marks}
@@ -773,8 +787,8 @@ export default function CreateExam() {
                         )}
                       </div>
                     </div>
-
-                    <input
+                    
+                    <input 
                       type="text"
                       value={q.text}
                       onChange={e => handleQuestionChange(qIndex, "text", e.target.value)}
@@ -807,15 +821,15 @@ export default function CreateExam() {
                     <div className="space-y-3">
                       {q.options.map((opt, oIndex) => (
                         <div key={oIndex} className="flex items-center gap-3">
-                          <input
-                            type="radio"
+                          <input 
+                            type="radio" 
                             name={`correct-${qIndex}`}
                             checked={q.correctOptionIndex === oIndex}
                             onChange={() => handleQuestionChange(qIndex, "correctOptionIndex", oIndex)}
                             className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
                             required
                           />
-                          <input
+                          <input 
                             type="text"
                             value={opt}
                             onChange={e => handleQuestionChange(qIndex, "option", e.target.value, oIndex)}
@@ -832,8 +846,8 @@ export default function CreateExam() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <button
-                type="submit"
+              <button 
+                type="submit" 
                 disabled={loading}
                 className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30 disabled:opacity-70 flex items-center gap-2"
               >

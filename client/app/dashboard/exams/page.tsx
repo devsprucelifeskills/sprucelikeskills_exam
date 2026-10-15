@@ -27,6 +27,7 @@ function AvailableExamsContent() {
           const url = eventId
             ? `${API_URL}/api/exam/available?eventId=${eventId}`
             : `${API_URL}/api/exam/available`;
+          const examsRes = await axios.get(url, { withCredentials: true });
           if (examsRes.data.success) {
             // Strictly show only actual exams; filter out any mock tests
             const actualExamsOnly = (examsRes.data.exams || []).filter(

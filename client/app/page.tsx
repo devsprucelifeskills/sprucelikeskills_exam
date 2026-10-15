@@ -65,6 +65,12 @@ function AuthForm() {
         }, { withCredentials: true });
 
         if (res.data.success) {
+          if (res.data.token) {
+            localStorage.setItem("token", res.data.token);
+          }
+          if (res.data.user) {
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+          }
           router.push("/dashboard");
         }
       } catch (err: any) {
@@ -77,6 +83,12 @@ function AuthForm() {
       try {
         const res = await axios.post(`${API_URL}/api/auth/login`, { email, password }, { withCredentials: true });
         if (res.data.success) {
+          if (res.data.token) {
+            localStorage.setItem("token", res.data.token);
+          }
+          if (res.data.user) {
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+          }
           router.push("/dashboard");
         }
       } catch (err: any) {

@@ -13,7 +13,7 @@ dotenv.config();
 
 const app = express();
 app.set("trust proxy", 1);
-const PORT = process.env.PORT || 9002;
+const PORT = process.env.PORT || 9005;
 
 // Middleware
 app.use(compression());
@@ -32,7 +32,7 @@ import { authConnection, examConnection } from "./config/db.js";
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.SERVER_URL || `http://localhost:${process.env.PORT || 9002}`}/api/auth/google/callback`
+    callbackURL: `${process.env.SERVER_URL || `http://localhost:${process.env.PORT || 9005}`}/api/auth/google/callback`
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const email = profile.emails[0].value;
