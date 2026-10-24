@@ -63,12 +63,35 @@ export default function CreateExam() {
   const [questions, setQuestions] = useState<Question[]>([
     { text: "", options: ["", "", "", ""], correctOptionIndex: 0, marks: 1, image: "" }
   ]);
+  const [examCategory, setExamCategory] = useState<"actual" | "mock" | "event">("actual");
   const [parsing, setParsing] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
   const [enableAntiCheating, setEnableAntiCheating] = useState(false);
   const [isMock, setIsMock] = useState(false);
   const [isInterviewPrep, setIsInterviewPrep] = useState(false);
   const [questionsPerStudent, setQuestionsPerStudent] = useState<number>(0);
+
+  const handleCategoryChange = (category: "actual" | "mock" | "event") => {
+    setExamCategory(category);
+    if (category === "actual") {
+      setIsMock(false);
+      setSelectedEvent("");
+    } else if (category === "mock") {
+      setIsMock(true);
+      setSelectedEvent("");
+      setSelectedBatches([]);
+      setAllStudents([]);
+      setAllowedStudents([]);
+      setIsPublic(false);
+    } else if (category === "event") {
+      setIsMock(false);
+      setSelectedCourse("");
+      setSelectedBatches([]);
+      setAllStudents([]);
+      setAllowedStudents([]);
+      setIsPublic(false);
+    }
+  };
 
   useEffect(() => {
     // Check auth, fetch courses and events
@@ -142,14 +165,19 @@ export default function CreateExam() {
     setAllStudents(studentsList);
     
     // Auto-select all by default when batch selection changes
-    // Only if allowedStudents is empty (meaning first selection) or we want to force reset
     setAllowedStudents(studentsList.map(s => s._id));
   }, [selectedBatches, batches]);
 
-  // Dynamically calculate total marks and passing score (40%)
+  // Dynamically calculate total marks and adjust default passing score
   useEffect(() => {
     const total = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
     setTotalMarks(total);
+    setPassingScore(prev => {
+      if (total === 0) return 0;
+      if (prev > total) return Math.ceil(total * 0.4);
+      if (prev === 40 && total !== 100) return Math.ceil(total * 0.4);
+      return prev;
+    });
   }, [questions]);
 
   const toggleBatch = (batchId: string) => {
@@ -162,7 +190,7 @@ export default function CreateExam() {
 
   const toggleStudent = (studentId: string) => {
     setAllowedStudents(prev => 
-      prev.includes(studentId)
+      prev.includes(studentId) 
         ? prev.filter(id => id !== studentId)
         : [...prev, studentId]
     );
@@ -260,22 +288,26 @@ export default function CreateExam() {
     setLoading(true);
 
     // Validation
-    if (!title) {
+    if (!title.trim()) {
       alert("Please fill in the exam title.");
       setLoading(false);
       return;
     }
 
-    if (!isMock && !startTime) {
-      alert("Please provide an exam start time.");
+    if (examCategory === "event" && !selectedEvent) {
+      alert("Please select a platform event to link this exam to.");
       setLoading(false);
       return;
     }
 
-    // Only require course/batch/students if not a mock exam, no event is linked, and exam is not public
-    if (!isMock && !isPublic && !selectedEvent) {
-      if (!selectedCourse || selectedBatches.length === 0) {
-        alert("Please fill all basic details, select at least one batch, and provide a start time.");
+    if (examCategory === "actual" && !isPublic) {
+      if (!selectedCourse) {
+        alert("Please select a course for this exam.");
+        setLoading(false);
+        return;
+      }
+      if (selectedBatches.length === 0) {
+        alert("Please select at least one batch.");
         setLoading(false);
         return;
       }
@@ -286,7 +318,13 @@ export default function CreateExam() {
       }
     }
 
-    const hasEmptyQuestions = questions.some(q => !q.text || q.options.some(opt => !opt));
+    if (examCategory !== "mock" && !startTime) {
+      alert("Please provide an exam start time.");
+      setLoading(false);
+      return;
+    }
+
+    const hasEmptyQuestions = questions.some(q => !q.text.trim() || q.options.some(opt => !opt.trim()));
     if (hasEmptyQuestions) {
       alert("Please complete all questions and options.");
       setLoading(false);
@@ -294,23 +332,26 @@ export default function CreateExam() {
     }
 
     try {
+      const isMockMode = examCategory === "mock";
+      const isEventMode = examCategory === "event";
+
       const res = await axios.post(`${API_URL}/api/exam/create`, {
         title,
         description,
         duration,
-        eventId: isMock ? null : (selectedEvent || null),
-        courseId: selectedCourse || null,
-        batchIds: isMock ? [] : selectedBatches,
-        allowedStudents: isMock ? [] : allowedStudents,
+        eventId: isEventMode ? selectedEvent : null,
+        courseId: isMockMode ? (selectedCourse || null) : (isEventMode || isPublic ? null : selectedCourse),
+        batchIds: (!isMockMode && !isEventMode && !isPublic) ? selectedBatches : [],
+        allowedStudents: (!isMockMode && !isEventMode && !isPublic) ? allowedStudents : [],
         passingScore,
         totalMarks,
         questions,
         startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
-        isPublic: isMock ? true : isPublic,
-        isMockExam: isMock,
-        is_mock: isMock,
-        isInterviewPrep: isMock ? isInterviewPrep : false,
-        questionsPerStudent: isMock ? questionsPerStudent : 0,
+        isPublic: isMockMode ? true : (isEventMode ? false : isPublic),
+        isMockExam: isMockMode,
+        is_mock: isMockMode,
+        isInterviewPrep: isMockMode ? isInterviewPrep : false,
+        questionsPerStudent: isMockMode ? questionsPerStudent : 0,
         enableAntiCheating
       }, { withCredentials: true });
 
@@ -344,68 +385,189 @@ export default function CreateExam() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Step 1: Assignment */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-zinc-100">
-              <h2 className="text-xl font-bold mb-6 text-zinc-900">1. Assessment Classification & Assignment</h2>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-zinc-900">1. Assessment Classification &amp; Assignment</h2>
+                  <p className="text-xs text-zinc-500 mt-1">Select the exam type to reveal its dedicated configuration options.</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                  examCategory === "actual" 
+                    ? "bg-blue-100 text-blue-700 border border-blue-200" 
+                    : examCategory === "mock" 
+                    ? "bg-purple-100 text-purple-700 border border-purple-200" 
+                    : "bg-amber-100 text-amber-800 border border-amber-200"
+                }`}>
+                  {examCategory === "actual" ? "🎯 Actual Exam" : examCategory === "mock" ? "🧪 Mock Exam" : "🎫 Event Exam"}
+                </span>
+              </div>
 
-              {/* Assessment Mode Toggle: Actual Exam vs Mock Test */}
-              <div className="mb-6 p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80">
-                <label className="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-3">
-                  Exam Type
+              {/* Main Category Dropdown */}
+              <div className="mb-6 p-5 rounded-2xl bg-zinc-50 border border-zinc-200/90 shadow-inner">
+                <label htmlFor="examCategorySelect" className="block text-xs font-black uppercase tracking-wider text-zinc-700 mb-2">
+                  Choose Exam Type <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMock(false);
-                    }}
-                    className={`p-4 rounded-xl border text-left transition-all ${
-                      !isMock
-                        ? "bg-blue-50/80 border-blue-500 ring-2 ring-blue-500/20 text-blue-950 font-bold"
-                        : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300"
-                    }`}
+                <div className="relative">
+                  <select
+                    id="examCategorySelect"
+                    value={examCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value as "actual" | "mock" | "event")}
+                    className="w-full px-4 py-3.5 pr-10 rounded-xl border-2 border-zinc-200 bg-white text-zinc-900 font-semibold text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all cursor-pointer shadow-sm"
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">🎯</span>
-                      <span className="font-extrabold text-sm">Actual Exam</span>
-                    </div>
-                    <p className="text-xs text-zinc-500 font-normal">
-                      Scheduled assessment assigned to specific batches, events, or open tests. Shown in students' Available Exams tab.
-                    </p>
-                  </button>
+                    <option value="actual">🎯 Actual Exam — Scheduled course &amp; batch assessment</option>
+                    <option value="mock">🧪 Mock Exam — Practice test &amp; question pool sampling</option>
+                    <option value="event">🎫 Event Exam — Gated for main platform event participants</option>
+                  </select>
+                </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMock(true);
-                      setSelectedEvent("");
-                      setSelectedBatches([]);
-                      setAllowedStudents([]);
-                    }}
-                    className={`p-4 rounded-xl border text-left transition-all ${
-                      isMock
-                        ? "bg-purple-50/80 border-purple-500 ring-2 ring-purple-500/20 text-purple-950 font-bold"
-                        : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-300"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">🧪</span>
-                      <span className="font-extrabold text-sm">Mock Exam (is_mock: true)</span>
-                    </div>
-                    <p className="text-xs text-zinc-500 font-normal">
-                      Practice test with status <span className="font-mono text-purple-700 font-semibold">is_mock</span>. Filterable by admin and hidden from the Available Exams tab.
-                    </p>
-                  </button>
+                <div className="mt-3 flex items-start gap-2 text-xs text-zinc-600">
+                  <span className="text-sm">ℹ️</span>
+                  <p>
+                    {examCategory === "actual" && "Scheduled assessment assigned to specific course batches and targeted students, or published as an open public test."}
+                    {examCategory === "mock" && "Practice test with optional course association and deterministic question pool sampling. Bypasses batch rosters."}
+                    {examCategory === "event" && "Linked to a main platform event (e.g. Hackathon or Contest). Accessible exclusively to enrolled students via SSO."}
+                  </p>
                 </div>
               </div>
 
-              {/* Mock Exam Options Panel */}
-              {isMock ? (
-                <div className="space-y-6 mb-6">
+              {/* ────────────────────────────────────────── */}
+              {/* CATEGORY 1: ACTUAL EXAM OPTIONS           */}
+              {/* ────────────────────────────────────────── */}
+              {examCategory === "actual" && (
+                <div className="space-y-6">
+                  {/* Public Test Toggle */}
+                  <div className="p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
+                      <p className="text-xs text-zinc-500 mt-1 max-w-sm">
+                        Public tests are visible to <span className="font-semibold text-blue-600">all logged-in students</span> in the Available Exams tab without requiring batch assignment.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPublic(prev => !prev)}
+                      className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        isPublic ? 'bg-blue-600' : 'bg-zinc-300'
+                      }`}
+                      aria-pressed={isPublic}
+                      aria-label="Toggle public test"
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                          isPublic ? 'translate-x-6' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Course / Batch / Student selector — shown when NOT public */}
+                  {!isPublic ? (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-zinc-700 mb-2">
+                            Course <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            value={selectedCourse}
+                            onChange={e => { setSelectedCourse(e.target.value); setSelectedBatches([]); }}
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                          >
+                            <option value="">Select a Course</option>
+                            {courses.map(c => (
+                              <option key={c._id} value={c._id}>{c.title}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-zinc-700 mb-2">
+                            Select Batches <span className="text-red-500">*</span>
+                          </label>
+                          {!selectedCourse ? (
+                            <div className="p-4 text-sm text-zinc-500 bg-zinc-50 rounded-xl border border-zinc-200">
+                              Select a course first to view batches.
+                            </div>
+                          ) : batches.length === 0 ? (
+                            <div className="p-4 text-sm text-zinc-500 bg-zinc-50 rounded-xl border border-zinc-200">
+                              No batches found for this course.
+                            </div>
+                          ) : (
+                            <div className="space-y-2 max-h-48 overflow-y-auto p-2 border border-zinc-200 rounded-xl bg-zinc-50">
+                              {batches.map(b => (
+                                <label key={b._id} className="flex items-center gap-3 p-2 hover:bg-white rounded-lg cursor-pointer transition-colors">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedBatches.includes(b._id)}
+                                    onChange={() => toggleBatch(b._id)}
+                                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                                  />
+                                  <span className="text-zinc-900 font-medium">{b.name}</span>
+                                  <span className="ml-auto text-xs text-zinc-500 bg-zinc-200 px-2 py-1 rounded-full">
+                                    {b.students?.length || 0} students
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Targeted Students List */}
+                      {allStudents.length > 0 && (
+                        <div className="mt-8 border-t border-zinc-200 pt-6">
+                          <div className="flex justify-between items-center mb-4">
+                            <label className="block text-sm font-medium text-zinc-700">
+                              Targeted Students ({allowedStudents.length}/{allStudents.length})
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
+                              className="text-sm text-blue-600 font-semibold hover:underline"
+                            >
+                              {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50 rounded-xl border border-zinc-200">
+                            {allStudents.map(student => (
+                              <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200' : 'bg-white border-zinc-200 opacity-60 hover:opacity-100'}`}>
+                                <input
+                                  type="checkbox"
+                                  checked={allowedStudents.includes(student._id)}
+                                  onChange={() => toggleStudent(student._id)}
+                                  className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
+                                />
+                                <div className="overflow-hidden">
+                                  <p className="text-sm font-bold text-zinc-900 truncate">{student.name}</p>
+                                  <p className="text-xs text-zinc-500 truncate">{student.email}</p>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                          <p className="text-xs text-zinc-500 mt-3">Uncheck students to prevent them from seeing or taking this exam.</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl flex items-center gap-3">
+                      <span className="text-xl">🌐</span>
+                      <p className="text-xs text-blue-900 font-medium leading-relaxed">
+                        Public Test Mode is active. All platform students can view and attempt this assessment. Course, batch, and individual student selections are bypassed.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ────────────────────────────────────────── */}
+              {/* CATEGORY 2: MOCK EXAM OPTIONS              */}
+              {/* ────────────────────────────────────────── */}
+              {examCategory === "mock" && (
+                <div className="space-y-6">
                   <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl flex items-start gap-3">
-                    <span className="text-xl">ℹ️</span>
+                    <span className="text-xl">🧪</span>
                     <div>
                       <p className="text-sm font-bold text-purple-900">Mock Assessment Mode Active (is_mock)</p>
                       <p className="text-xs text-purple-700 mt-1 leading-relaxed">
-                        This test will <strong>NOT</strong> appear in students' Available Exams list. Students access it via course mock test cards and single-backend SSO links. Batch and student roster assignments are bypassed.
+                        This practice test will <strong>NOT</strong> appear in students' Available Exams list. Students access it via course mock test cards and single-backend SSO links. Batch and student roster assignments are bypassed.
                       </p>
                     </div>
                   </div>
@@ -413,7 +575,7 @@ export default function CreateExam() {
                   {/* Course Association for Mock Exam */}
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 mb-2">
-                      Associate with Course <span className="text-zinc-400 font-normal">(Optional — for course-specific interview prep)</span>
+                      Associate with Course <span className="text-zinc-400 font-normal">(Optional — for course-specific practice / interview prep)</span>
                     </label>
                     <select
                       value={selectedCourse}
@@ -463,182 +625,52 @@ export default function CreateExam() {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <>
-                  {/* Event Link Dropdown */}
-                  <div className="mb-6">
+              )}
+
+              {/* ────────────────────────────────────────── */}
+              {/* CATEGORY 3: EVENT EXAM OPTIONS             */}
+              {/* ────────────────────────────────────────── */}
+              {examCategory === "event" && (
+                <div className="space-y-6">
+                  <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl flex items-start gap-3">
+                    <span className="text-xl">🎫</span>
+                    <div>
+                      <p className="text-sm font-bold text-amber-900">Event-Gated Exam Mode Active</p>
+                      <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                        This exam is linked directly to a main platform event. Only students enrolled in that specific event can access it via SSO auto-login. Course, batch, and student roster selections are not needed.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium text-zinc-700 mb-2">
-                      Link to Main Platform Event <span className="text-zinc-400 font-normal">(Optional)</span>
+                      Select Main Platform Event <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={selectedEvent}
-                      onChange={e => {
-                        const val = e.target.value;
-                        setSelectedEvent(val);
-                        // When event is selected, clear course/batch/students — they're not needed
-                        if (val) {
-                          setSelectedCourse("");
-                          setSelectedBatches([]);
-                          setAllStudents([]);
-                          setAllowedStudents([]);
-                          setIsPublic(false);
-                        }
-                      }}
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      onChange={e => setSelectedEvent(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
                     >
-                      <option value="">None (Independent Exam)</option>
+                      <option value="">Select an Event</option>
                       {events.map(ev => (
-                        <option key={ev._id} value={ev._id}>{ev.title}</option>
+                        <option key={ev._id} value={ev._id}>
+                          {ev.title} {ev.assignedExams && ev.assignedExams.length > 0 ? `(${ev.assignedExams.length} existing exam linked)` : ""}
+                        </option>
                       ))}
                     </select>
+
                     {selectedEvent ? (
-                      <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-200 rounded-xl">
-                        <span className="text-violet-500 text-sm">🎫</span>
-                        <p className="text-xs text-violet-700 font-semibold">
-                          Event-gated exam — only students enrolled in this event can access it via SSO.
+                      <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+                        <span className="text-amber-600 text-sm">✅</span>
+                        <p className="text-xs text-amber-800 font-semibold">
+                          Event Linked. Only participants enrolled in this event will be granted access.
                         </p>
                       </div>
                     ) : (
                       <p className="text-xs text-zinc-500 mt-1">
-                        Linking to an event allows enrolled students to auto-login from the main platform.
+                        Select an event that has testing enabled to link this exam.
                       </p>
                     )}
-                  </div>
-
-                  {/* Public Test Toggle — hidden when event is selected */}
-                  {!selectedEvent && (
-                    <div className="mb-6 p-4 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-bold text-zinc-900">Make this a Public Test</p>
-                        <p className="text-xs text-zinc-500 mt-1 max-w-sm">
-                          Public tests are visible to <span className="font-semibold text-blue-600">all logged-in users</span> in the Available Exams tab.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsPublic(prev => !prev)}
-                        className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          isPublic ? 'bg-blue-600' : 'bg-zinc-300'
-                        }`}
-                        aria-pressed={isPublic}
-                        aria-label="Toggle public test"
-                      >
-                        <span
-                          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
-                            isPublic ? 'translate-x-6' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Course / Batch / Student selector — shown only when NO event is linked and not public */}
-              {!selectedEvent && !isPublic && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 mb-2">Course</label>
-                      <select
-                        value={selectedCourse}
-                        onChange={e => { setSelectedCourse(e.target.value); setSelectedBatches([]); }}
-                        className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                      >
-                        <option value="">Select a Course</option>
-                        {courses.map(c => (
-                          <option key={c._id} value={c._id}>{c.title}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 mb-2">Select Batches</label>
-                      {!selectedCourse ? (
-                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50 rounded-xl border border-zinc-200">
-                          Select a course first to view batches.
-                        </div>
-                      ) : batches.length === 0 ? (
-                        <div className="p-4 text-sm text-zinc-500 bg-zinc-50 rounded-xl border border-zinc-200">
-                          No batches found for this course.
-                        </div>
-                      ) : (
-                        <div className="space-y-2 max-h-48 overflow-y-auto p-2 border border-zinc-200 rounded-xl bg-zinc-50">
-                          {batches.map(b => (
-                            <label key={b._id} className="flex items-center gap-3 p-2 hover:bg-white rounded-lg cursor-pointer transition-colors">
-                              <input
-                                type="checkbox"
-                                checked={selectedBatches.includes(b._id)}
-                                onChange={() => toggleBatch(b._id)}
-                                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                              />
-                              <span className="text-zinc-900 font-medium">{b.name}</span>
-                              <span className="ml-auto text-xs text-zinc-500 bg-zinc-200 px-2 py-1 rounded-full">
-                                {b.students?.length || 0} students
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Targeted Students List */}
-                  {allStudents.length > 0 && (
-                    <div className="mt-8 border-t border-zinc-200 pt-6">
-                      <div className="flex justify-between items-center mb-4">
-                        <label className="block text-sm font-medium text-zinc-700">
-                          Targeted Students ({allowedStudents.length}/{allStudents.length})
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => setAllowedStudents(allowedStudents.length === allStudents.length ? [] : allStudents.map(s => s._id))}
-                          className="text-sm text-blue-600 font-semibold hover:underline"
-                        >
-                          {allowedStudents.length === allStudents.length ? "Deselect All" : "Select All"}
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2 bg-zinc-50 rounded-xl border border-zinc-200">
-                        {allStudents.map(student => (
-                          <label key={student._id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${allowedStudents.includes(student._id) ? 'bg-blue-50 border-blue-200' : 'bg-white border-zinc-200 opacity-60 hover:opacity-100'}`}>
-                            <input
-                              type="checkbox"
-                              checked={allowedStudents.includes(student._id)}
-                              onChange={() => toggleStudent(student._id)}
-                              className="w-4 h-4 mt-1 text-blue-600 rounded focus:ring-blue-500"
-                            />
-                            <div className="overflow-hidden">
-                              <p className="text-sm font-bold text-zinc-900 truncate">{student.name}</p>
-                              <p className="text-xs text-zinc-500 truncate">{student.email}</p>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                      <p className="text-xs text-zinc-500 mt-3">Uncheck students to prevent them from seeing or taking this exam.</p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Locked state — shown when event is selected */}
-              {selectedEvent && (
-                <div className="relative mt-2 rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/60 overflow-hidden">
-                  <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center gap-2 rounded-2xl">
-                    <span className="text-2xl">🔒</span>
-                    <p className="text-sm font-bold text-zinc-600">Course &amp; Batch selection locked</p>
-                    <p className="text-xs text-zinc-400 text-center max-w-xs">
-                      This exam is event-gated. Only students enrolled in the selected event can access it via SSO auto-login.
-                    </p>
-                  </div>
-                  {/* Blurred background UI */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 pointer-events-none select-none blur-[1px] opacity-40">
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 mb-2">Course</label>
-                      <div className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white text-zinc-400">Locked — Event selected</div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 mb-2">Select Batches</label>
-                      <div className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white text-zinc-400">Locked — Event selected</div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -698,13 +730,19 @@ export default function CreateExam() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700  mb-2">Start Date & Time</label>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Start Date &amp; Time {examCategory === "mock" ? (
+                        <span className="text-xs font-normal text-purple-600">(Optional for Mock — defaults to instant access)</span>
+                      ) : (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
                     <input 
                       type="datetime-local" 
                       value={startTime || ""}
                       onChange={e => setStartTime(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-200  bg-zinc-50  text-zinc-900  focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                      required
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      required={examCategory !== "mock"}
                     />
                   </div>
                   <div>
