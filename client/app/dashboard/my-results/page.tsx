@@ -74,32 +74,65 @@ export default function MyResults() {
                       <th className="p-4 font-semibold border-b border-zinc-200 ">Date Taken</th>
                       <th className="p-4 font-semibold border-b border-zinc-200 ">Score</th>
                       <th className="p-4 font-semibold border-b border-zinc-200 ">Status</th>
+                      <th className="p-4 font-semibold border-b border-zinc-200 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                    {results.map((result) => (
-                      <tr key={result._id} className="hover:bg-zinc-50/50  transition-colors">
-                        <td className="p-4">
-                          <p className="font-bold text-zinc-900 ">{result.examId?.title || "Deleted Exam"}</p>
-                          <p className="text-xs text-zinc-500 ">Passing Score: {result.examId?.passingScore}</p>
-                        </td>
-                        <td className="p-4 text-zinc-600 ">
-                          {new Date(result.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </td>
-                        <td className="p-4 font-mono font-bold text-zinc-900 ">
-                          {result.score} <span className="text-zinc-400 text-xs font-sans">/ {result.examId?.totalMarks}</span>
-                        </td>
-                        <td className="p-4">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                            result.isPassed 
-                              ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400" 
-                              : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-                          }`}>
-                            {result.isPassed ? "PASSED" : "FAILED"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {results.map((result) => {
+                      const canView = !!(
+                        result.examId?.showResult ||
+                        user?.role === "admin" ||
+                        user?.role === "trainer" ||
+                        result.examId?.is_mock ||
+                        result.examId?.isMockExam
+                      );
+
+                      return (
+                        <tr key={result._id} className="hover:bg-zinc-50/50  transition-colors">
+                          <td className="p-4">
+                            <p className="font-bold text-zinc-900 ">{result.examId?.title || "Deleted Exam"}</p>
+                            <p className="text-xs text-zinc-500 ">Passing Score: {result.examId?.passingScore}</p>
+                          </td>
+                          <td className="p-4 text-zinc-600 ">
+                            {new Date(result.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                          <td className="p-4 font-mono font-bold text-zinc-900 ">
+                            {result.score} <span className="text-zinc-400 text-xs font-sans">/ {result.examId?.totalMarks}</span>
+                          </td>
+                          <td className="p-4">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                              result.isPassed 
+                                ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400" 
+                                : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
+                            }`}>
+                              {result.isPassed ? "PASSED" : "FAILED"}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            {result.examId ? (
+                              canView ? (
+                                <button
+                                  onClick={() => router.push(`/dashboard/my-results/${result.examId._id}`)}
+                                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                >
+                                  <span>Review Answers</span>
+                                  <span>→</span>
+                                </button>
+                              ) : (
+                                <span 
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 text-zinc-500 rounded-xl font-semibold text-xs cursor-not-allowed" 
+                                  title="Your instructor has not published answer keys yet"
+                                >
+                                  <span>🔒</span> Results Pending
+                                </span>
+                              )
+                            ) : (
+                              <span className="text-xs text-zinc-400">Unavailable</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

@@ -302,7 +302,7 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
     const { 
         title, description, duration, courseId, batchIds, 
         allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
-        isMockExam, is_mock, isInterviewPrep, questionsPerStudent
+        isMockExam, is_mock, isInterviewPrep, questionsPerStudent, showResult
     } = req.body;
 
     try {
@@ -344,6 +344,7 @@ router.post("/create", isAuthenticated, isManager, async (req, res) => {
             isInterviewPrep: isMock ? !!isInterviewPrep : false,
             questionsPerStudent: isMock ? (Math.max(0, Number(questionsPerStudent)) || 0) : 0,
             enableAntiCheating: !!enableAntiCheating,
+            showResult: !!showResult,
             createdBy: req.user.id
         });
 
@@ -366,7 +367,7 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
         const { 
             title, description, duration, courseId, batchIds, 
             allowedStudents, passingScore, totalMarks, questions, startTime, isPublic, enableAntiCheating, eventId,
-            isMockExam, is_mock, isInterviewPrep, questionsPerStudent
+            isMockExam, is_mock, isInterviewPrep, questionsPerStudent, showResult
         } = req.body;
 
         const isMock = !!(is_mock !== undefined ? is_mock : isMockExam);
@@ -393,7 +394,8 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
             is_mock: isMock,
             isInterviewPrep: isMock ? !!isInterviewPrep : false,
             questionsPerStudent: isMock ? (Math.max(0, Number(questionsPerStudent)) || 0) : 0,
-            enableAntiCheating: !!enableAntiCheating
+            enableAntiCheating: !!enableAntiCheating,
+            showResult: !!showResult
         }, { new: true });
 
 
@@ -614,6 +616,34 @@ router.patch("/admin/toggle-active/:id", isAuthenticated, isManager, async (req,
     }
 });
 
+// 8b. Toggle Show Result to Students
+router.patch("/admin/toggle-show-result/:id", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(id);
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        exam.showResult = !exam.showResult;
+        await exam.save();
+
+        res.json({ 
+            success: true, 
+            message: `Results are now ${exam.showResult ? "visible" : "hidden"} to students`, 
+            showResult: exam.showResult,
+            exam 
+        });
+    } catch (err) {
+        console.error("Error toggling showResult status:", err);
+        res.status(500).json({ success: false, message: "Failed to toggle showResult status" });
+    }
+});
+
 // 9. Delete Exam
 router.delete("/admin/:id", isAuthenticated, isManager, async (req, res) => {
     try {
@@ -738,13 +768,129 @@ router.get("/available", isAuthenticated, async (req, res) => {
 router.get("/my-results/all", isAuthenticated, async (req, res) => {
     try {
         const results = await ExamResult.find({ studentId: req.user.id })
-            .populate("examId", "title passingScore totalMarks duration")
+            .populate("examId", "title passingScore totalMarks duration showResult is_mock isMockExam")
             .sort({ createdAt: -1 })
             .lean();
         res.json({ success: true, results });
     } catch (err) {
         console.error("Error fetching results:", err);
         res.status(500).json({ success: false, message: "Failed to fetch results" });
+    }
+});
+
+// 9a. Get Specific Exam Result Details (Question-by-Question review with student's answers & correct options)
+router.get("/my-results/:examId", isAuthenticated, async (req, res) => {
+    try {
+        const { examId } = req.params;
+        if (!isValidObjectId(examId)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(examId).lean();
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        const result = await ExamResult.findOne({ examId, studentId: req.user.id }).lean();
+        if (!result) {
+            return res.status(404).json({ success: false, message: "No submission found for this exam" });
+        }
+
+        const isPrivileged = req.user.role === "admin" || req.user.role === "trainer";
+        const isMock = !!(exam.isMockExam || exam.is_mock);
+        const canViewDetailed = !!exam.showResult || isPrivileged || isMock;
+
+        if (!canViewDetailed) {
+            return res.status(200).json({
+                success: true,
+                showResult: false,
+                message: "Results and answer keys will be visible once published by the instructor.",
+                exam: {
+                    _id: exam._id,
+                    title: exam.title,
+                    description: exam.description,
+                    totalMarks: exam.totalMarks,
+                    passingScore: exam.passingScore,
+                    showResult: false
+                },
+                result: {
+                    _id: result._id,
+                    score: result.score,
+                    isPassed: result.isPassed,
+                    submittedAt: result.createdAt,
+                    startedAt: result.startedAt
+                }
+            });
+        }
+
+        // Map student's chosen answers: questionIndex -> selectedOptionIndex
+        const studentAnswersMap = new Map();
+        (result.answers || []).forEach(a => {
+            studentAnswersMap.set(String(a.questionIndex), a.selectedOptionIndex);
+        });
+
+        // Determine which questions were in this student's exam
+        const assignedIndices = (result.answers || []).map(a => a.questionIndex);
+        let detailedQuestions = [];
+
+        if (assignedIndices.length > 0 && assignedIndices.length < exam.questions.length) {
+            // Subset was sampled
+            detailedQuestions = assignedIndices.map(qIdx => {
+                const q = exam.questions[qIdx];
+                if (!q) return null;
+                const studentChoice = studentAnswersMap.has(String(qIdx)) ? studentAnswersMap.get(String(qIdx)) : null;
+                return {
+                    questionIndex: qIdx,
+                    text: q.text,
+                    options: q.options,
+                    correctOptionIndex: q.correctOptionIndex,
+                    marks: q.marks || 1,
+                    image: q.image || "",
+                    studentSelectedOptionIndex: studentChoice,
+                    isCorrect: studentChoice !== null && studentChoice === q.correctOptionIndex
+                };
+            }).filter(Boolean);
+        } else {
+            // All questions
+            detailedQuestions = exam.questions.map((q, idx) => {
+                const studentChoice = studentAnswersMap.has(String(idx)) ? studentAnswersMap.get(String(idx)) : null;
+                return {
+                    questionIndex: idx,
+                    text: q.text,
+                    options: q.options,
+                    correctOptionIndex: q.correctOptionIndex,
+                    marks: q.marks || 1,
+                    image: q.image || "",
+                    studentSelectedOptionIndex: studentChoice,
+                    isCorrect: studentChoice !== null && studentChoice === q.correctOptionIndex
+                };
+            });
+        }
+
+        res.json({
+            success: true,
+            showResult: true,
+            exam: {
+                _id: exam._id,
+                title: exam.title,
+                description: exam.description,
+                duration: exam.duration,
+                totalMarks: exam.totalMarks,
+                passingScore: exam.passingScore,
+                showResult: exam.showResult
+            },
+            result: {
+                _id: result._id,
+                score: result.score,
+                isPassed: result.isPassed,
+                startedAt: result.startedAt,
+                submittedAt: result.createdAt,
+                questions: detailedQuestions
+            }
+        });
+    } catch (err) {
+        console.error("Error fetching detailed result:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch detailed result" });
     }
 });
 
@@ -851,7 +997,17 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
             throw createErr;
         }
 
-        res.json({ success: true, message: "Exam submitted successfully", result: { score, isPassed, totalMarks: exam.totalMarks } });
+        res.json({ 
+            success: true, 
+            message: "Exam submitted successfully", 
+            result: { 
+                score, 
+                isPassed, 
+                totalMarks: exam.totalMarks,
+                showResult: !!exam.showResult,
+                examId: exam._id
+            } 
+        });
     } catch (err) {
         console.error("Error submitting exam:", err);
         res.status(500).json({ success: false, message: "Failed to submit exam" });

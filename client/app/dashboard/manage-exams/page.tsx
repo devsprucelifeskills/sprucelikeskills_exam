@@ -56,6 +56,20 @@ export default function ManageExams() {
     }
   };
 
+  const handleToggleShowResult = async (examId: string) => {
+    try {
+      const res = await axios.patch(`${API_URL}/api/exam/admin/toggle-show-result/${examId}`, {}, { withCredentials: true });
+      if (res.data.success) {
+        setExams((prev) =>
+          prev.map((e) => (e._id === examId ? { ...e, showResult: !e.showResult } : e))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update result visibility");
+    }
+  };
+
   const handleDelete = async (examId: string) => {
     if (!confirm("Are you sure you want to delete this exam? This action cannot be undone.")) return;
     try {
@@ -184,6 +198,10 @@ export default function ManageExams() {
                       <span className={`px-2.5 py-0.5 text-[9px] font-black rounded-full uppercase tracking-widest ${exam.isActive ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-zinc-100 text-zinc-400'}`}>
                         {exam.isActive ? 'Active' : 'Inactive'}
                       </span>
+
+                      <span className={`px-2.5 py-0.5 text-[9px] font-black rounded-full uppercase tracking-wider ${exam.showResult ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-zinc-100 text-zinc-500'}`}>
+                        {exam.showResult ? '📊 Results Visible' : '🔒 Results Hidden'}
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-x-6 gap-y-2 text-[10px] md:text-xs font-bold text-zinc-400">
@@ -222,6 +240,17 @@ export default function ManageExams() {
                       }`}
                     >
                       {exam.isActive ? 'DEACTIVATE' : 'ACTIVATE'}
+                    </button>
+                    <button
+                      onClick={() => handleToggleShowResult(exam._id)}
+                      title={exam.showResult ? "Hide answers from students" : "Publish results and answer breakdown to students"}
+                      className={`flex-1 sm:flex-none px-4 md:px-5 py-3 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all duration-300 text-center ${
+                        exam.showResult
+                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-600 hover:text-white'
+                          : 'bg-zinc-100 text-zinc-600 hover:bg-indigo-600 hover:text-white'
+                      }`}
+                    >
+                      {exam.showResult ? 'HIDE RESULTS' : 'PUBLISH RESULTS'}
                     </button>
                     <button
                       onClick={() => handleDelete(exam._id)}

@@ -70,6 +70,7 @@ export default function CreateExam() {
   const [isMock, setIsMock] = useState(false);
   const [isInterviewPrep, setIsInterviewPrep] = useState(false);
   const [questionsPerStudent, setQuestionsPerStudent] = useState<number>(0);
+  const [showResult, setShowResult] = useState(false);
 
   const handleCategoryChange = (category: "actual" | "mock" | "event") => {
     setExamCategory(category);
@@ -352,7 +353,8 @@ export default function CreateExam() {
         is_mock: isMockMode,
         isInterviewPrep: isMockMode ? isInterviewPrep : false,
         questionsPerStudent: isMockMode ? questionsPerStudent : 0,
-        enableAntiCheating
+        enableAntiCheating,
+        showResult
       }, { withCredentials: true });
 
       if (res.data.success) {
@@ -724,6 +726,34 @@ export default function CreateExam() {
                     <span
                       className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
                         enableAntiCheating ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Show Result to Students Toggle */}
+                <div className="p-4 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/60 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">📊</span>
+                      <p className="text-sm font-bold text-zinc-900">Show Results to Students</p>
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-1 max-w-md leading-relaxed">
+                      When enabled, students can view their score, correct answers, and question-by-question response breakdown after submitting the exam.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowResult(prev => !prev)}
+                    className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                      showResult ? 'bg-emerald-600' : 'bg-zinc-300'
+                    }`}
+                    aria-pressed={showResult}
+                    aria-label="Toggle show result to students"
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${
+                        showResult ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
                   </button>

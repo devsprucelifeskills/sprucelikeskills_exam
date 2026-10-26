@@ -50,6 +50,10 @@ const examSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        showResult: {
+            type: Boolean,
+            default: false,
+        },
         eventId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Event',

@@ -38,6 +38,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [now, setNow] = useState(new Date());
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [showSubmitModal, setShowSubmitModal] = useState<boolean>(false);
   const [reviewIndices, setReviewIndices] = useState<(number | string)[]>([]);
   const [examStartedAt, setExamStartedAt] = useState<string | null>(null);
 
@@ -387,7 +388,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(e => console.error(e));
         }
-        router.push("/dashboard/exams/thank-you");
+        setResult(res.data.result);
+        setShowSubmitModal(true);
       }
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to submit exam");
@@ -687,6 +689,92 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
           </div>
         </aside>
       </div>
+
+      {/* Post-Submission Completion Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-white rounded-[32px] p-8 sm:p-10 text-center shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
+            {/* Top decorative gradient line */}
+            <div className="absolute top-0 left-0 right-0 h-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500" />
+            
+            <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner text-4xl">
+              🎉
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
+              Exam Submitted Successfully!
+            </h2>
+            <p className="text-slate-500 text-sm font-medium mb-6">
+              Your responses have been securely recorded.
+            </p>
+
+            {/* Score & Status Summary Card */}
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6 text-left">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Exam</span>
+                <span className="text-xs font-bold text-slate-700 truncate max-w-[200px]">{exam?.title}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Score</p>
+                  <p className="text-2xl font-black text-slate-900 mt-0.5">
+                    {result?.score} <span className="text-xs font-bold text-slate-400">/ {result?.totalMarks}</span>
+                  </p>
+                </div>
+                <div>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                    result?.isPassed ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                  }`}>
+                    {result?.isPassed ? "PASSED" : "FAILED"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Visibility Notice */}
+            {result?.showResult ? (
+              <div className="mb-6 p-3.5 bg-blue-50 border border-blue-100 rounded-xl text-left flex items-start gap-3">
+                <span className="text-lg">💡</span>
+                <p className="text-xs font-medium text-blue-900 leading-relaxed">
+                  The instructor has enabled detailed results. You can view each question, your answer, and the correct option now.
+                </p>
+              </div>
+            ) : (
+              <div className="mb-6 p-3.5 bg-amber-50 border border-amber-100 rounded-xl text-left flex items-start gap-3">
+                <span className="text-lg">🔒</span>
+                <p className="text-xs font-medium text-amber-900 leading-relaxed">
+                  Detailed question breakdown and answer keys will become visible once published by your instructor.
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3">
+              {result?.showResult && (
+                <button
+                  onClick={() => router.push(`/dashboard/my-results/${id}`)}
+                  className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black text-sm hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <span>View Detailed Result</span>
+                  <span>→</span>
+                </button>
+              )}
+              <button
+                onClick={() => router.push("/dashboard/my-results")}
+                className="w-full py-3.5 px-6 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-md"
+              >
+                Go to My Results
+              </button>
+              <button
+                onClick={() => router.push("/dashboard/exams")}
+                className="w-full py-3 px-6 bg-white text-slate-600 border border-slate-200 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-all"
+              >
+                Back to Available Exams
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
