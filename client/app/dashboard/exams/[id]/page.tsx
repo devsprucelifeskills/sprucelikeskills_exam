@@ -407,6 +407,10 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     );
   }
 
+  // Actual (non-mock) exams never expose result routes to students: after
+  // submission both "View Detailed Result" and "Go to My Results" stay hidden.
+  const isActualExam = !(exam.isMockExam || exam.is_mock);
+
   if (phase === "waiting") {
     const startTime = new Date(exam.startTime);
     return (
@@ -765,7 +769,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
-              {result?.showResult && (
+              {!isActualExam && result?.showResult && (
                 <button
                   onClick={() => router.push(`/dashboard/my-results/${id}`)}
                   className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black text-sm hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
@@ -774,12 +778,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                   <span>→</span>
                 </button>
               )}
-              <button
-                onClick={() => router.push("/dashboard/my-results")}
-                className="w-full py-3.5 px-6 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-md"
-              >
-                Go to My Results
-              </button>
+              {!isActualExam && (
+                <button
+                  onClick={() => router.push("/dashboard/my-results")}
+                  className="w-full py-3.5 px-6 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-md"
+                >
+                  Go to My Results
+                </button>
+              )}
               <button
                 onClick={() => router.push("/dashboard/exams")}
                 className="w-full py-3 px-6 bg-white text-slate-600 border border-slate-200 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-all"

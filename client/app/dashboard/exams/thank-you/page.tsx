@@ -83,12 +83,12 @@ export default function ThankYouPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in duration-1000 delay-500">
-          <Link 
+          {/* <Link 
             href="/dashboard/my-results" 
             className="px-10 py-4 bg-zinc-900 text-white rounded-2xl font-bold hover:bg-blue-600 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-zinc-200"
           >
             Check My Results
-          </Link>
+          </Link> */}
           <Link
             href="/dashboard/exams"
             className="px-10 py-4 bg-white text-zinc-900 border border-zinc-200 rounded-2xl font-bold hover:bg-zinc-50 transition-all hover:scale-105 active:scale-95 shadow-sm"
