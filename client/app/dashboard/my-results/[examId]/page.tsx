@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 
 interface QuestionResult {
+  displayIndex?: number;
   questionIndex: number;
   text: string;
   options: string[];
@@ -300,7 +301,9 @@ export default function ExamResultDetailPage({ params }: { params: Promise<{ exa
             ) : (
               filteredQuestions.map((q, displayIdx) => {
                 const isSkipped = q.studentSelectedOptionIndex === null || q.studentSelectedOptionIndex === undefined;
-                
+                const studentOptionIdx = !isSkipped ? Number(q.studentSelectedOptionIndex) : null;
+                const questionNum = q.displayIndex || (displayIdx + 1);
+
                 return (
                   <div
                     key={q.questionIndex}
@@ -309,11 +312,11 @@ export default function ExamResultDetailPage({ params }: { params: Promise<{ exa
                     {/* Header */}
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                       <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-xl bg-zinc-100 text-zinc-900 font-black text-xs flex items-center justify-center border border-zinc-200">
-                          {q.questionIndex + 1}
+                        <span className="w-8 h-8 rounded-xl bg-zinc-900 text-white font-black text-xs flex items-center justify-center shadow-sm">
+                          {questionNum}
                         </span>
-                        <span className="text-xs font-black uppercase tracking-wider text-zinc-400">
-                          Question {q.questionIndex + 1}
+                        <span className="text-xs font-black uppercase tracking-wider text-zinc-500">
+                          Question {questionNum}
                         </span>
                       </div>
 
@@ -348,7 +351,7 @@ export default function ExamResultDetailPage({ params }: { params: Promise<{ exa
                       <div className="relative w-full max-w-md h-52 rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-100 mb-6">
                         <img
                           src={q.image}
-                          alt={`Question ${q.questionIndex + 1}`}
+                          alt={`Question ${questionNum}`}
                           className="w-full h-full object-contain"
                         />
                       </div>
@@ -357,35 +360,44 @@ export default function ExamResultDetailPage({ params }: { params: Promise<{ exa
                     {/* Options List */}
                     <div className="space-y-3 mt-4">
                       {q.options.map((option, optIdx) => {
-                        const isStudentChoice = q.studentSelectedOptionIndex === optIdx;
-                        const isCorrectOption = q.correctOptionIndex === optIdx;
+                        const isStudentChoice = studentOptionIdx === optIdx;
+                        const isCorrectOption = Number(q.correctOptionIndex) === optIdx;
 
                         let styleClasses = "border-zinc-200 bg-zinc-50/50 text-zinc-700";
+                        let circleClasses = "bg-zinc-200 text-zinc-700";
                         let badgeContent = null;
 
-                        if (isCorrectOption) {
-                          styleClasses = "border-emerald-500 bg-emerald-50/70 text-emerald-950 ring-1 ring-emerald-500/20";
+                        if (isStudentChoice && isCorrectOption) {
+                          styleClasses = "border-emerald-500 bg-emerald-50/80 text-emerald-950 ring-2 ring-emerald-500/20";
+                          circleClasses = "bg-emerald-600 text-white";
+                          badgeContent = (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="px-2.5 py-1 rounded-md text-[11px] font-black bg-emerald-700 text-white shadow-sm flex items-center gap-1">
+                                <span>✓</span>
+                                <span>Your Response</span>
+                              </span>
+                              <span className="px-2.5 py-1 rounded-md text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                                <span>✓</span>
+                                <span>Correct Answer</span>
+                              </span>
+                            </div>
+                          );
+                        } else if (isStudentChoice && !isCorrectOption) {
+                          styleClasses = "border-rose-500 bg-rose-50/80 text-rose-950 ring-2 ring-rose-500/20";
+                          circleClasses = "bg-rose-600 text-white";
+                          badgeContent = (
+                            <span className="px-2.5 py-1 rounded-md text-[11px] font-black bg-rose-600 text-white shadow-sm flex items-center gap-1">
+                              <span>✕</span>
+                              <span>Your Response (Incorrect)</span>
+                            </span>
+                          );
+                        } else if (isCorrectOption) {
+                          styleClasses = "border-emerald-500 bg-emerald-50/60 text-emerald-950 ring-1 ring-emerald-500/20";
+                          circleClasses = "bg-emerald-600 text-white";
                           badgeContent = (
                             <span className="px-2.5 py-1 rounded-md text-[11px] font-black bg-emerald-600 text-white shadow-sm flex items-center gap-1">
                               <span>✓</span>
                               <span>Correct Answer</span>
-                            </span>
-                          );
-                        }
-
-                        if (isStudentChoice && !isCorrectOption) {
-                          styleClasses = "border-rose-500 bg-rose-50/70 text-rose-950 ring-1 ring-rose-500/20";
-                          badgeContent = (
-                            <span className="px-2.5 py-1 rounded-md text-[11px] font-black bg-rose-600 text-white shadow-sm flex items-center gap-1">
-                              <span>✕</span>
-                              <span>Your Choice (Incorrect)</span>
-                            </span>
-                          );
-                        } else if (isStudentChoice && isCorrectOption) {
-                          badgeContent = (
-                            <span className="px-2.5 py-1 rounded-md text-[11px] font-black bg-emerald-700 text-white shadow-sm flex items-center gap-1">
-                              <span>✓</span>
-                              <span>Your Choice (Correct)</span>
                             </span>
                           );
                         }
@@ -397,23 +409,58 @@ export default function ExamResultDetailPage({ params }: { params: Promise<{ exa
                           >
                             <div className="flex items-center gap-3">
                               <span
-                                className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0 ${
-                                  isCorrectOption
-                                    ? "bg-emerald-600 text-white"
-                                    : isStudentChoice
-                                    ? "bg-rose-600 text-white"
-                                    : "bg-zinc-200 text-zinc-700"
-                                }`}
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0 ${circleClasses}`}
                               >
                                 {String.fromCharCode(65 + optIdx)}
                               </span>
                               <span className="font-semibold text-sm leading-snug">{option}</span>
                             </div>
 
-                            {badgeContent && <div className="self-end sm:self-auto">{badgeContent}</div>}
+                            {badgeContent && <div className="self-end sm:self-auto flex-shrink-0">{badgeContent}</div>}
                           </div>
                         );
                       })}
+                    </div>
+
+                    {/* Comparison Summary Banner */}
+                    <div className="mt-5 p-4 rounded-2xl bg-zinc-50/90 border border-zinc-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-black text-zinc-400 uppercase tracking-wider text-[10px]">
+                          Your Response:
+                        </span>
+                        {isSkipped || studentOptionIdx === null ? (
+                          <span className="font-bold px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1">
+                            <span>—</span> Not Attempted
+                          </span>
+                        ) : (
+                          <span
+                            className={`font-black px-2.5 py-1 rounded-lg border flex items-center gap-1.5 ${
+                              q.isCorrect
+                                ? "bg-emerald-100 text-emerald-950 border-emerald-300"
+                                : "bg-rose-100 text-rose-950 border-rose-300"
+                            }`}
+                          >
+                            <span>{q.isCorrect ? "✓" : "✕"}</span>
+                            <span>
+                              Option {String.fromCharCode(65 + studentOptionIdx)}:{" "}
+                              <span className="font-semibold">{q.options[studentOptionIdx] || ""}</span>
+                            </span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-black text-zinc-400 uppercase tracking-wider text-[10px]">
+                          Correct Answer:
+                        </span>
+                        <span className="font-black px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-950 border border-emerald-300 flex items-center gap-1.5">
+                          <span>✓</span>
+                          <span>
+                            Option {String.fromCharCode(65 + Number(q.correctOptionIndex))}:{" "}
+                            <span className="font-semibold">{q.options[Number(q.correctOptionIndex)] || ""}</span>
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );

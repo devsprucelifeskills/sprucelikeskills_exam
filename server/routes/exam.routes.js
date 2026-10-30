@@ -868,13 +868,15 @@ router.get("/my-results/:examId", isAuthenticated, async (req, res) => {
         const assignedIndices = (result.answers || []).map(a => a.questionIndex);
         let detailedQuestions = [];
 
-        if (assignedIndices.length > 0 && assignedIndices.length < exam.questions.length) {
-            // Subset was sampled
-            detailedQuestions = assignedIndices.map(qIdx => {
+        if (assignedIndices.length > 0) {
+            // Preserves exact student exam order (deterministic shuffle or sampled subset)
+            detailedQuestions = assignedIndices.map((qIdx, orderIdx) => {
                 const q = exam.questions[qIdx];
                 if (!q) return null;
-                const studentChoice = studentAnswersMap.has(String(qIdx)) ? studentAnswersMap.get(String(qIdx)) : null;
+                const rawChoice = studentAnswersMap.has(String(qIdx)) ? studentAnswersMap.get(String(qIdx)) : null;
+                const studentChoice = (rawChoice !== null && rawChoice !== undefined) ? Number(rawChoice) : null;
                 return {
+                    displayIndex: orderIdx + 1,
                     questionIndex: qIdx,
                     text: q.text,
                     options: q.options,
@@ -886,10 +888,12 @@ router.get("/my-results/:examId", isAuthenticated, async (req, res) => {
                 };
             }).filter(Boolean);
         } else {
-            // All questions
+            // Fallback if result.answers is empty or legacy
             detailedQuestions = exam.questions.map((q, idx) => {
-                const studentChoice = studentAnswersMap.has(String(idx)) ? studentAnswersMap.get(String(idx)) : null;
+                const rawChoice = studentAnswersMap.has(String(idx)) ? studentAnswersMap.get(String(idx)) : null;
+                const studentChoice = (rawChoice !== null && rawChoice !== undefined) ? Number(rawChoice) : null;
                 return {
+                    displayIndex: idx + 1,
                     questionIndex: idx,
                     text: q.text,
                     options: q.options,
