@@ -97,16 +97,30 @@ export default function MyResults() {
                             {new Date(result.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </td>
                           <td className="p-4 font-mono font-bold text-zinc-900 ">
-                            {result.score} <span className="text-zinc-400 text-xs font-sans">/ {result.examId?.totalMarks}</span>
+                            {canView && result.score !== null && result.score !== undefined ? (
+                              <>
+                                {result.score} <span className="text-zinc-400 text-xs font-sans">/ {result.examId?.totalMarks}</span>
+                              </>
+                            ) : (
+                              <span className="text-xs font-bold text-zinc-400 bg-zinc-100 px-2.5 py-1 rounded-lg font-sans">
+                                Hidden
+                              </span>
+                            )}
                           </td>
                           <td className="p-4">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                              result.isPassed 
-                                ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400" 
-                                : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-                            }`}>
-                              {result.isPassed ? "PASSED" : "FAILED"}
-                            </span>
+                            {canView && result.isPassed !== null && result.isPassed !== undefined ? (
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                                result.isPassed 
+                                  ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400" 
+                                  : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
+                              }`}>
+                                {result.isPassed ? "PASSED" : "FAILED"}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-zinc-100 text-zinc-500">
+                                Submitted
+                              </span>
+                            )}
                           </td>
                           <td className="p-4 text-right">
                             {result.examId ? (

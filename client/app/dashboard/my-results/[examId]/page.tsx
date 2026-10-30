@@ -99,18 +99,16 @@ export default function ExamResultDetailPage({ params }: { params: Promise<{ exa
                 <div className="inline-block bg-zinc-50 border border-zinc-200 rounded-2xl px-6 py-4 mb-8 text-left">
                   <div className="flex items-center gap-6">
                     <div>
-                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Score Logged</p>
-                      <p className="text-xl font-black text-zinc-900">
-                        {result.score} <span className="text-xs text-zinc-400">/ {exam?.totalMarks}</span>
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Submission</p>
+                      <p className="text-sm font-bold text-zinc-800 mt-0.5">
+                        {result.submittedAt ? new Date(result.submittedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Recorded"}
                       </p>
                     </div>
                     <div className="h-8 w-px bg-zinc-200" />
                     <div>
-                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Status</p>
-                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider mt-0.5 ${
-                        result.isPassed ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                      }`}>
-                        {result.isPassed ? "PASSED" : "FAILED"}
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Score &amp; Answers</p>
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider mt-0.5 bg-amber-100 text-amber-800">
+                        Pending Release
                       </span>
                     </div>
                   </div>

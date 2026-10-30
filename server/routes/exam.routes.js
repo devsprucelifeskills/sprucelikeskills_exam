@@ -410,6 +410,26 @@ router.put("/admin/:id", isAuthenticated, isManager, async (req, res) => {
     }
 });
 
+// 4b. Fetch single Exam for Admin/Trainer (for editing/managing)
+router.get("/admin/:id", isAuthenticated, isManager, async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Exam ID" });
+        }
+
+        const exam = await Exam.findById(id).lean();
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
+        }
+
+        res.json({ success: true, exam });
+    } catch (err) {
+        console.error("Error fetching admin exam:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch exam" });
+    }
+});
+
 
 // 4. Admin/Trainer View All Results
 router.get("/admin/results", isAuthenticated, isManager, async (req, res) => {
@@ -767,11 +787,26 @@ router.get("/available", isAuthenticated, async (req, res) => {
 // 9. Get My Results (Student)
 router.get("/my-results/all", isAuthenticated, async (req, res) => {
     try {
+        const isPrivileged = req.user.role === "admin" || req.user.role === "trainer";
         const results = await ExamResult.find({ studentId: req.user.id })
             .populate("examId", "title passingScore totalMarks duration showResult is_mock isMockExam")
             .sort({ createdAt: -1 })
             .lean();
-        res.json({ success: true, results });
+
+        const sanitizedResults = results.map(r => {
+            const canView = isPrivileged || !!r.examId?.showResult || !!r.examId?.is_mock || !!r.examId?.isMockExam;
+            if (!canView) {
+                return {
+                    ...r,
+                    score: null,
+                    isPassed: null,
+                    answers: []
+                };
+            }
+            return r;
+        });
+
+        res.json({ success: true, results: sanitizedResults });
     } catch (err) {
         console.error("Error fetching results:", err);
         res.status(500).json({ success: false, message: "Failed to fetch results" });
@@ -804,7 +839,7 @@ router.get("/my-results/:examId", isAuthenticated, async (req, res) => {
             return res.status(200).json({
                 success: true,
                 showResult: false,
-                message: "Results and answer keys will be visible once published by the instructor.",
+                message: "Results and scores will be visible once published by the instructor.",
                 exam: {
                     _id: exam._id,
                     title: exam.title,
@@ -815,8 +850,8 @@ router.get("/my-results/:examId", isAuthenticated, async (req, res) => {
                 },
                 result: {
                     _id: result._id,
-                    score: result.score,
-                    isPassed: result.isPassed,
+                    score: null,
+                    isPassed: null,
                     submittedAt: result.createdAt,
                     startedAt: result.startedAt
                 }
@@ -997,14 +1032,17 @@ router.post("/:id/submit", isAuthenticated, async (req, res) => {
             throw createErr;
         }
 
+        const isMock = !!(exam.isMockExam || exam.is_mock);
+        const canViewResult = !!exam.showResult || isMock;
+
         res.json({ 
             success: true, 
             message: "Exam submitted successfully", 
             result: { 
-                score, 
-                isPassed, 
+                score: canViewResult ? score : null, 
+                isPassed: canViewResult ? isPassed : null, 
                 totalMarks: exam.totalMarks,
-                showResult: !!exam.showResult,
+                showResult: canViewResult,
                 examId: exam._id
             } 
         });
@@ -1023,8 +1061,8 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         }
 
         const exam = await Exam.findById(id).lean();
-        if (!exam || !exam.isActive) {
-            return res.status(404).json({ success: false, message: "Exam not found or inactive" });
+        if (!exam) {
+            return res.status(404).json({ success: false, message: "Exam not found" });
         }
 
         const isAdminOrTrainer = req.user.role === "admin" || req.user.role === "trainer";
@@ -1033,6 +1071,10 @@ router.get("/:id", isAuthenticated, async (req, res) => {
         const isPublicExam = !!exam.isPublic;
         const isEventExam = !!exam.eventId;
         const isMockExam = !!(exam.isMockExam || exam.is_mock);
+
+        if (!exam.isActive && !isAdminOrTrainer && !isCreator) {
+            return res.status(404).json({ success: false, message: "Exam not found or inactive" });
+        }
 
         if (!isAdminOrTrainer && !isCreator && !isAllowedStudent && !isPublicExam && !isEventExam && !isMockExam) {
             return res.status(403).json({ success: false, message: "You are not authorized to take this exam" });

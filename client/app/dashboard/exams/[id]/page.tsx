@@ -708,28 +708,43 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
               Your responses have been securely recorded.
             </p>
 
-            {/* Score & Status Summary Card */}
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6 text-left">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Exam</span>
-                <span className="text-xs font-bold text-slate-700 truncate max-w-[200px]">{exam?.title}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Score</p>
-                  <p className="text-2xl font-black text-slate-900 mt-0.5">
-                    {result?.score} <span className="text-xs font-bold text-slate-400">/ {result?.totalMarks}</span>
-                  </p>
+            {/* Score & Status Summary Card (only when showResult is enabled) */}
+            {result?.showResult ? (
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6 text-left">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Exam</span>
+                  <span className="text-xs font-bold text-slate-700 truncate max-w-[200px]">{exam?.title}</span>
                 </div>
-                <div>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                    result?.isPassed ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                  }`}>
-                    {result?.isPassed ? "PASSED" : "FAILED"}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Score</p>
+                    <p className="text-2xl font-black text-slate-900 mt-0.5">
+                      {result?.score} <span className="text-xs font-bold text-slate-400">/ {result?.totalMarks}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                      result?.isPassed ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                    }`}>
+                      {result?.isPassed ? "PASSED" : "FAILED"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6 text-left">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Exam</span>
+                  <span className="text-xs font-bold text-slate-700 truncate max-w-[200px]">{exam?.title}</span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                  <span className="text-xs font-bold text-slate-500">Status</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-slate-200 text-slate-700">
+                    <span>✓</span> Submitted
                   </span>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Visibility Notice */}
             {result?.showResult ? (

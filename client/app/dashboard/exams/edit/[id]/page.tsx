@@ -57,7 +57,7 @@ export default function EditExam({ params }: { params: Promise<{ id: string }> }
         setUser(userRes.data.user);
 
         // Fetch Exam Data
-        const examRes = await axios.get(`${API_URL}/api/exam/${id}`, { withCredentials: true });
+        const examRes = await axios.get(`${API_URL}/api/exam/admin/${id}`, { withCredentials: true });
         if (examRes.data.success) {
           const e = examRes.data.exam;
           setTitle(e.title);
